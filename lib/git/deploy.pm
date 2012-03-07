@@ -51,7 +51,7 @@ task 'hooks' => sub {
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
 
-    my $home = say run 'echo $HOME';
+    my $home = run 'echo $HOME';
     my $deploy_path = $param->{'deploy-to'}    || $home.'/gitweb';
     my $remote_file
         = $home . '/' . get('git_path') . '/.git/hooks/post-receive';
@@ -70,6 +70,7 @@ task 'hooks' => sub {
             $hook_file = catfile( curdir, 'hooks', 'post-receive.template' );
         }
     }
+    warn "hook file $hook_file\n";
     my $content = do { local ( @ARGV, $/ ) = $hook_file; <> };
     warn $content, "\n";
 
