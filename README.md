@@ -10,13 +10,14 @@ Install Rex module
 Add a file named Rexfile to import all deploy tasks
 Add the following lines in your Rexfile
      
-     use lib 'tasks';
+     use lib 'tasks/lib';
      
      # server authorization
      user 'user';
      private_key 'key';
      public_key 'pkey';
      key_auth;
+     set task_folder 'tasks';
 
 		 # import module
      require git:deploy;

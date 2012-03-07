@@ -6,7 +6,7 @@ use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Gather;
 use Rex::Commands::File;
-use File::Spec::Functions qw/catfile curdir/;
+use File::Spec::Functions qw/catfile curdir updir/;
 use File::Copy;
 
 desc "Create remote git repository and install push hooks";
@@ -52,10 +52,21 @@ task 'hooks' => sub {
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
     my $remote_file = get('git_path') . '/.git/hooks/post-receive';
-    my $hook_file
-        = $param->{hook}
-        ? $param->{hook}
-        : catfile( curdir(), 'hooks', 'post-receive.template' );
+    my $hook_file;
+    if ( defined $param->{hook} ) {
+        $hook_file = $param->{hook};
+    }
+    else {
+        if ( -e 'Rexfile' or -e catdir( curdir(), get 'task_folder' ) ) {
+            $hook_file = catfile(
+                curdir(), get 'task_folder',
+                'hooks',  'post-receive.template'
+            );
+        }
+        else {
+            $hook_file = catfile( curdir, 'hooks', 'post-receive.template' );
+        }
+    }
     my $content = do { local ( @ARGV, $/ ) = $hook_file; <> };
 
     # -- replace template variable if exist
@@ -72,12 +83,12 @@ task 'hooks' => sub {
 
 desc 'Create mojolicious deployment scripts for your web application';
 task 'init' => sub {
-    my $to_dir   = catdir( curdir(), 'deploy' );
+    my $to_dir = catdir( curdir(), updir(), 'deploy' );
     my $from_dir = catdir( curdir(), 'templates' );
     ## -- making guess
-    if ( -e 'Rexfile' ) {
-        $to_dir   = catfile( updir(), 'deploy' );
-        $from_dir = catfile( updir(), 'templates' );
+    if ( -e 'Rexfile' or -e catdir( curdir(), get 'task_folder' ) ) {
+        $to_dir = catdir( curdir(), 'deploy' );
+        $from_dir = catfile( curdir(), get 'task_folder', 'templates' );
     }
     LOCAL => sub {
         if ( !-e $to_dir ) {
