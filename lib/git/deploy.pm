@@ -42,10 +42,10 @@ desc 'Install git hooks in the remote repository';
 task 'hooks' => sub {
    # -- takes the following options
    # perl-version : default is perl-5.10.1
-   # deploy-mode : should be either of fcgi or reverse-proxy,  default is fcgi
+   # deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
    # hook : post-receive hook file,  default is hooks/post-receive.template
     my ($param) = @_;
-    my $deploy_mode = $param->{'deploy-mode'}  || 'fcgi';
+    my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
     my $remote_file = $deploy_path . '/.git/hooks/post-receive';
     my $hook_file
@@ -88,7 +88,6 @@ task 'init' => sub {
             chmod 0744, catfile( $to_dir, $wo_ext );
         }
     };
-
 };
 
 1;    # Magic true value required at end of module
