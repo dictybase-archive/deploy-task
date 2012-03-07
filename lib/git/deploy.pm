@@ -16,7 +16,7 @@ task 'setup', sub {
 # git-path : remote folder where the git repository will be initiated,  by default it
 #            will be git inside the user's home folder
     my ($param) = @_;
-    my $git_path = $param->{'git-path'} || '$HOME/git';
+    my $git_path = $param->{'git-path'} || 'git';
     set git_path => $git_path;
 
     ## -- create a folder and give sticky permission
@@ -65,9 +65,10 @@ task 'hooks' => sub {
                 curdir(), get 'task_folder',
                 'hooks',  'post-receive.template'
             );
+            warn "got rexfile\n";
         }
         else {
-            $hook_file = catfile( curdir, 'hooks', 'post-receive.template' );
+            $hook_file = catfile( curdir(), 'hooks', 'post-receive.template' );
         }
     }
     warn "hook file $hook_file\n";
