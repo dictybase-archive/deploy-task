@@ -48,10 +48,13 @@ task 'hooks' => sub {
 # deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
 # hook : post-receive hook file,  default is hooks/post-receive.template
     my ($param) = @_;
-    my $deploy_path = $param->{'deploy-to'}    || '$HOME/gitweb';
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
-    my $remote_file = get('git_path') . '/.git/hooks/post-receive';
+
+    my $home = say run 'echo $HOME';
+    my $deploy_path = $param->{'deploy-to'}    || $home.'/gitweb';
+    my $remote_file
+        = $home . '/' . get('git_path') . '/.git/hooks/post-receive';
     my $hook_file;
     if ( defined $param->{hook} ) {
         $hook_file = $param->{hook};
@@ -68,6 +71,7 @@ task 'hooks' => sub {
         }
     }
     my $content = do { local ( @ARGV, $/ ) = $hook_file; <> };
+    warn $content, "\n";
 
     # -- replace template variable if exist
     $content =~ s{<%=\s?(deploy-to)\s?%>}{$deploy_path};
