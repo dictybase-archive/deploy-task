@@ -51,7 +51,7 @@ task 'hooks' => sub {
     my $deploy_path = $param->{'deploy-to'}    || '$HOME/gitweb';
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
-    my $remote_file = $git_path . '/.git/hooks/post-receive';
+    my $remote_file = get('git_path') . '/.git/hooks/post-receive';
     my $hook_file
         = $param->{hook}
         ? $param->{hook}
