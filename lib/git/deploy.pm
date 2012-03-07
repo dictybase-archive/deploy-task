@@ -1,0 +1,94 @@
+package git::deploy;
+
+use strict;
+use Rex -base;
+use Rex::Commands::Run;
+use Rex::Commands::Fs;
+use Rex::Commands::Gather;
+use Rex::Commands::File;
+use File::Spec::Functions qw/catfile curdir/;
+use File::Copy;
+
+my $deploy_path;
+
+desc "Create remote git repository and install push hooks";
+task 'setup', sub {
+   # -- one required argument
+   # deploy-to : remote folder where the git repository will be initiated
+    my ($param) = @_;
+    $deploy_path = $param->{'deploy-to'}
+        || die "remote folder(--deploy-to) is not given\n";
+
+    ## -- create a folder and give sticky permission
+    if ( !is_dir($deploy_path) ) {
+        run "mkdir -p $deploy_path";
+    }
+    chmod "g+ws", $deploy_path;
+
+    ## -- init a bare repository
+    if ( can_run 'git' ) {
+        say run "git init --share=group $deploy_path";
+        run 'git config --bool receive.denyNonFastForwards false';
+        run 'git config receive.denyCurrentBranch ignore';
+
+        do_task 'git:deploy:hooks';
+    }
+    else {
+        warn "git is not installed in remote server\n";
+    }
+};
+
+desc 'Install git hooks in the remote repository';
+task 'hooks' => sub {
+   # -- takes the following options
+   # perl-version : default is perl-5.10.1
+   # deploy-mode : should be either of fcgi or reverse-proxy,  default is fcgi
+   # hook : post-receive hook file,  default is hooks/post-receive.template
+    my ($param) = @_;
+    my $deploy_mode = $param->{'deploy-mode'}  || 'fcgi';
+    my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
+    my $remote_file = $deploy_path . '/.git/hooks/post-receive';
+    my $hook_file
+        = $param->{hook}
+        ? $param->{hook}
+        : catfile( curdir(), 'hooks', 'post-receive.template' );
+    my $content = do { local ( @ARGV, $/ ) = $hook_file; <> };
+
+    # -- replace template variable if exist
+    $content =~ s{<%=\s?(deploy-to)\s?%>}{$deploy_path};
+    $content =~ s{<%=\s?(perl-version)\s?%>}{$perlv};
+    $content =~ s{<%=\s?(deploy-mode)\s?%>}{$deploy_mode};
+
+    my $fh = file_write $remote_file;
+    $fh->write($content);
+    $fh->close;
+
+    chmod '+x', $remote_file;
+};
+
+desc 'Create mojolicious deployment scripts for your web application';
+task 'init' => sub {
+    my $to_dir   = catdir( curdir(), 'deploy' );
+    my $from_dir = catdir( curdir(), 'templates' );
+    ## -- making guess
+    if ( -e 'Rexfile' ) {
+        $to_dir   = catfile( updir(), 'deploy' );
+        $from_dir = catfile( updir(), 'templates' );
+    }
+    LOCAL => sub {
+        if ( !-e $to_dir ) {
+            mkdir $to_dir;
+        }
+        opendir my $dir, $from_dir or die "cannot open dir:$!";
+        my @files = grep { !/^\.{,2}/ } readdir $dir;
+        for my $name (@files) {
+            ( my $wo_ext = $name ) =~ s/\.sh$//;
+            copy catfile( $from_dir, $name ), catfile( $to_dir, $wo_ext )
+                or die "Copy failed $!";
+            chmod 0744, catfile( $to_dir, $wo_ext );
+        }
+    };
+
+};
+
+1;    # Magic true value required at end of module

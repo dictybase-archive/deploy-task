@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+PERL=<%= perl-version %>
+DEPLOY_FOLDER=<%= deploy-to %>
+DEPLOY_MODE=./deploy/<%= deploy-mode %>
+GIT_WORK_TREE=$DEPLOY_FOLDER git checkout -f
+
+cd $DEPLOY_FOLDER;
+
+logfile = log/deploy.log
+if [ -d "deploy" ] then;
+	after = ./deploy/after_push
+	if [ -x $after ] then;
+		## execute the after push deploy hook in the background
+		nohup $after $DEPLOY_MODE $DEPLOY_FOLDER $PERL >> $logfile 2>&1 & 
+	fi
+fi
