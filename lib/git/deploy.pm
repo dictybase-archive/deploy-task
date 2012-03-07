@@ -9,25 +9,25 @@ use Rex::Commands::File;
 use File::Spec::Functions qw/catfile curdir/;
 use File::Copy;
 
-my $deploy_path;
-
 desc "Create remote git repository and install push hooks";
 task 'setup', sub {
-   # -- one required argument
-   # deploy-to : remote folder where the git repository will be initiated
+
+# -- one options
+# git-path : remote folder where the git repository will be initiated,  by default it
+#            will be git inside the user's home folder
     my ($param) = @_;
-    $deploy_path = $param->{'deploy-to'}
-        || die "remote folder(--deploy-to) is not given\n";
+    my $git_path = $param->{'git-path'} || '$HOME/git';
+    set git_path => $git_path;
 
     ## -- create a folder and give sticky permission
-    if ( !is_dir($deploy_path) ) {
-        run "mkdir -p $deploy_path";
+    if ( !is_dir($git_path) ) {
+        run "mkdir -p $git_path";
     }
-    chmod "g+ws", $deploy_path;
+    chmod "g+ws", $git_path;
 
     ## -- init a bare repository
     if ( can_run 'git' ) {
-        say run "git init --share=group $deploy_path";
+        say run "git init --share=group $git_path";
         run 'git config --bool receive.denyNonFastForwards false';
         run 'git config receive.denyCurrentBranch ignore';
 
@@ -40,14 +40,18 @@ task 'setup', sub {
 
 desc 'Install git hooks in the remote repository';
 task 'hooks' => sub {
-   # -- takes the following options
-   # perl-version : default is perl-5.10.1
-   # deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
-   # hook : post-receive hook file,  default is hooks/post-receive.template
+
+# -- takes the following options
+# deploy-to : remote folder where the web application will be deployed,  default is
+#             gitweb inside the user's home folder.
+# perl-version : default is perl-5.10.1
+# deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
+# hook : post-receive hook file,  default is hooks/post-receive.template
     my ($param) = @_;
+    my $deploy_path = $param->{'deploy-to'}    || '$HOME/gitweb';
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
-    my $remote_file = $deploy_path . '/.git/hooks/post-receive';
+    my $remote_file = $git_path . '/.git/hooks/post-receive';
     my $hook_file
         = $param->{hook}
         ? $param->{hook}
