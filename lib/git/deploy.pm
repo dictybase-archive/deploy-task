@@ -108,7 +108,7 @@ task 'init' => sub {
         ( my $wo_ext = $name ) =~ s/\.sh$//;
         copy catfile( $from_dir, $name ), catfile( $to_dir, $wo_ext )
             or die "Copy failed for $name to $wo_ext $!";
-        chmod 0744, catfile( $to_dir, $wo_ext );
+        chmod '+x', catfile( $to_dir, $wo_ext );
     }
 };
 
