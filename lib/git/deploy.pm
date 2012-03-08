@@ -6,7 +6,7 @@ use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Gather;
 use Rex::Commands::File;
-use File::Spec::Functions qw/catfile curdir updir/;
+use File::Spec::Functions qw/catfile curdir updir catdir/;
 use File::Copy;
 
 desc "Create remote git repository and install push hooks";
