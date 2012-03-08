@@ -52,7 +52,7 @@ task 'hooks' => sub {
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
 
     my $home = run 'echo $HOME';
-    my $deploy_path = $param->{'deploy-to'}    || $home.'/gitweb';
+    my $deploy_path = $param->{'deploy-to'} || $home . '/gitweb';
     my $remote_file
         = $home . '/' . get('git_path') . '/.git/hooks/post-receive';
     my $hook_file;
@@ -60,15 +60,15 @@ task 'hooks' => sub {
         $hook_file = $param->{hook};
     }
     else {
-        if ( -e 'Rexfile' or -e catdir( curdir(), get 'task_folder' ) ) {
-            $hook_file = catfile(
-                curdir(), get 'task_folder',
-                'hooks',  'post-receive.template'
-            );
-            warn "got rexfile\n";
+        my $task_folder = get 'task_folder';
+        if ( -e 'Rexfile' or -e catdir( curdir(), $task_folder ) ) {
+            $hook_file = catfile( curdir(), $task_folder, 'hooks',
+                'post-receive.template' );
+            warn $hook_file, "\n";
         }
         else {
-            $hook_file = catfile( curdir(), 'hooks', 'post-receive.template' );
+            $hook_file
+                = catfile( curdir(), 'hooks', 'post-receive.template' );
         }
     }
     warn "hook file $hook_file\n";
