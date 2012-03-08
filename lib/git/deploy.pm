@@ -100,10 +100,10 @@ task 'init' => sub {
         $from_dir = catfile( curdir(), $task_folder, 'templates' );
     }
     if ( !-e $to_dir ) {
-        mkdir $to_dir;
+        mkdir -p $to_dir;
     }
     opendir my $dir, $from_dir or die "cannot open dir:$!";
-    my @files = grep { !/^\.{,2}/ } readdir $dir;
+    my @files = grep { !/^\.\.?$/ } readdir $dir;
     for my $name (@files) {
         ( my $wo_ext = $name ) =~ s/\.sh$//;
         copy catfile( $from_dir, $name ), catfile( $to_dir, $wo_ext )
