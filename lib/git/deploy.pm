@@ -100,7 +100,7 @@ task 'init' => sub {
         $from_dir = catfile( curdir(), $task_folder, 'templates' );
     }
     if ( !-e $to_dir ) {
-        mkdir -p $to_dir;
+        mkdir $to_dir;
     }
     opendir my $dir, $from_dir or die "cannot open dir:$!";
     my @files = grep { !/^\.\.?$/ } readdir $dir;
