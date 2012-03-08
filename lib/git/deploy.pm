@@ -53,10 +53,10 @@ task 'hooks' => sub {
 
     my $home = run 'echo $HOME';
     my $deploy_path = $param->{'deploy-to'} || $home . '/gitweb';
-	if (!is_dir($deploy_path)) {
-		run "mkdir -p $deploy_path";	
-		chmod 'g+ws',  $deploy_path;
-	}
+    if ( !is_dir($deploy_path) ) {
+        run "mkdir -p $deploy_path";
+        chmod 'g+ws', $deploy_path;
+    }
 
     my $remote_file
         = $home . '/' . get('git_path') . '/.git/hooks/post-receive';
@@ -93,24 +93,23 @@ desc 'Create mojolicious deployment scripts for your web application';
 task 'init' => sub {
     my $to_dir = catdir( curdir(), updir(), 'deploy' );
     my $from_dir = catdir( curdir(), 'templates' );
+    my $task_folder = get 'task_folder';
     ## -- making guess
-    if ( -e 'Rexfile' or -e catdir( curdir(), get 'task_folder' ) ) {
+    if ( -e 'Rexfile' or -e catdir( curdir(), $task_folder ) ) {
         $to_dir = catdir( curdir(), 'deploy' );
-        $from_dir = catfile( curdir(), get 'task_folder', 'templates' );
+        $from_dir = catfile( curdir(), $task_folder, 'templates' );
     }
-    LOCAL => sub {
-        if ( !-e $to_dir ) {
-            mkdir $to_dir;
-        }
-        opendir my $dir, $from_dir or die "cannot open dir:$!";
-        my @files = grep { !/^\.{,2}/ } readdir $dir;
-        for my $name (@files) {
-            ( my $wo_ext = $name ) =~ s/\.sh$//;
-            copy catfile( $from_dir, $name ), catfile( $to_dir, $wo_ext )
-                or die "Copy failed $!";
-            chmod 0744, catfile( $to_dir, $wo_ext );
-        }
-    };
+    if ( !-e $to_dir ) {
+        mkdir $to_dir;
+    }
+    opendir my $dir, $from_dir or die "cannot open dir:$!";
+    my @files = grep { !/^\.{,2}/ } readdir $dir;
+    for my $name (@files) {
+        ( my $wo_ext = $name ) =~ s/\.sh$//;
+        copy catfile( $from_dir, $name ), catfile( $to_dir, $wo_ext )
+            or die "Copy failed $!";
+        chmod 0744, catfile( $to_dir, $wo_ext );
+    }
 };
 
 1;    # Magic true value required at end of module
