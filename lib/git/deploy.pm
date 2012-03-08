@@ -27,7 +27,7 @@ task 'setup', sub {
 
     ## -- init a bare repository
     if ( can_run 'git' ) {
-        say run "git init --share=group $git_path";
+        run "git init --share=group $git_path";
         run 'git config --bool receive.denyNonFastForwards false';
         run 'git config receive.denyCurrentBranch ignore';
 
