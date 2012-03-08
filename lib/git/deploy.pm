@@ -53,6 +53,11 @@ task 'hooks' => sub {
 
     my $home = run 'echo $HOME';
     my $deploy_path = $param->{'deploy-to'} || $home . '/gitweb';
+	if (!is_dir($deploy_path)) {
+		run "mkdir -p $deploy_path";	
+		chmod 'g+ws',  $deploy_path;
+	}
+
     my $remote_file
         = $home . '/' . get('git_path') . '/.git/hooks/post-receive';
     my $hook_file;
@@ -64,16 +69,13 @@ task 'hooks' => sub {
         if ( -e 'Rexfile' or -e catdir( curdir(), $task_folder ) ) {
             $hook_file = catfile( curdir(), $task_folder, 'hooks',
                 'post-receive.template' );
-            warn $hook_file, "\n";
         }
         else {
             $hook_file
                 = catfile( curdir(), 'hooks', 'post-receive.template' );
         }
     }
-    warn "hook file $hook_file\n";
     my $content = do { local ( @ARGV, $/ ) = $hook_file; <> };
-    warn $content, "\n";
 
     # -- replace template variable if exist
     $content =~ s{<%=\s?(deploy-to)\s?%>}{$deploy_path};
