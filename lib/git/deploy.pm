@@ -28,8 +28,8 @@ task 'setup', sub {
     ## -- init a bare repository
     if ( can_run 'git' ) {
         run "git init --share=group $git_path";
-        run 'git config --bool receive.denyNonFastForwards false';
-        run 'git config receive.denyCurrentBranch ignore';
+        run "cd $git_path && git config --bool receive.denyNonFastForwards false";
+        run "cd $git_path && git config receive.denyCurrentBranch ignore";
 
         do_task 'git:deploy:hooks';
     }
