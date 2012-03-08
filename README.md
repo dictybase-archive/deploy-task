@@ -45,7 +45,7 @@ Create the local deployment scripts(optional)
     git add deploy; git commit -m 'added deploy folder'
 
 Add the remote repository in git
-   git remote add deploy ssh://user@myhost.mydomain.com:/home/foo/git
+   git remote add deploy ssh://user@myhost.mydomain.com/home/foo/git
 
 Now push the current branch to this remote and it will check out the code in
 /home/foo/gitweb
