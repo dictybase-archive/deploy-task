@@ -28,7 +28,8 @@ task 'setup', sub {
     ## -- init a bare repository
     if ( can_run 'git' ) {
         run "git init --share=group $git_path";
-        run "cd $git_path && git config --bool receive.denyNonFastForwards false";
+        run
+            "cd $git_path && git config --bool receive.denyNonFastForwards false";
         run "cd $git_path && git config receive.denyCurrentBranch ignore";
 
         do_task 'git:deploy:hooks';
@@ -58,8 +59,7 @@ task 'hooks' => sub {
         chmod 'g+ws', $deploy_path;
     }
 
-    my $remote_file
-        = $home . '/' . get('git_path') . '/.git/hooks/post-receive';
+    my $remote_file = get('git_path') . '/.git/hooks/post-receive';
     my $hook_file;
     if ( defined $param->{hook} ) {
         $hook_file = $param->{hook};
