@@ -7,7 +7,10 @@ GIT_WORK_TREE=$DEPLOY_FOLDER git checkout -f
 
 cd $DEPLOY_FOLDER;
 
-logfile = log/deploy.log
+if ! [ -d $DEPLOY_FOLDER/log ];
+	mkdir -p $DEPLOY_FOLDER/log
+fi
+logfile=log/deploy.log
 if [ -d "deploy" ] then;
 	after = ./deploy/after_push
 	if [ -x $after ] then;
