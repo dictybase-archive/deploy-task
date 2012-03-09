@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # install perl modules for fcgi deployment
 # of web application.
@@ -11,4 +11,4 @@ echo "------> Installing dependencis"
 $cpanm --installdeps -n .
 
 echo "------> Installing plack and dependencies for fcgi deployment"
-$cpanm --installdeps -n Plack FCGI FCGI::ProcManager FCGI::Engine
+$cpanm -n Plack FCGI FCGI::ProcManager FCGI::Engine
