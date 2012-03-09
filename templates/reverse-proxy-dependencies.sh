@@ -12,4 +12,4 @@ echo "------> Installing dependencis"
 $cpanm --installdeps -n .
 
 echo "------> Installing plack and dependencies for reverse proxy deployment"
-$cpanm --installdeps -n Plack Starman
+$cpanm -n Plack Starman
