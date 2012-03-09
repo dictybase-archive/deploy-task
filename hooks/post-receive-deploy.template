@@ -12,7 +12,7 @@ if ! [ -d $DEPLOY_FOLDER/log ]; then
 fi
 logfile=log/deploy.log
 if [ -d "deploy" ]; then
-	after = ./deploy/after_push
+	after=./deploy/after_push
 	if [ -x $after ]; then
 		## execute the after push deploy hook in the background
 		nohup $after $DEPLOY_MODE $DEPLOY_FOLDER $PERL >> $logfile 2>&1 & 
