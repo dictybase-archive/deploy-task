@@ -13,5 +13,5 @@ echo -e "cd $APP_DIR\n" >> $RUN_FILE
 echo "source ${PERLBREW_ROOT}/etc/bashrc" >> $RUN_FILE
 echo "perlbrew use $LOCAL_LIB" >> $RUN_FILE
 echo  "export MOJO_MODE=production" >> $RUN_FILE
-echo  "exec setuidgid $USER plackup -p 9800 -E production -r -R template -s Starman --workers 10 script/$PROJECT" >> $RUN_FILE
+echo  "exec setuidgid $USER plackup -p 9800 -E production -r -R templates -s Starman --workers 10 script/$PROJECT" >> $RUN_FILE
 

@@ -14,7 +14,6 @@ task 'install',  sub {
 	else {
 		warn "remote server is not redhat based system:  git cannot be installed\n";
 	}
-	install package => 'git';
 };
 
 
