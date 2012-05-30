@@ -7,7 +7,7 @@ cpanm=$1
 APP_DIR=$2
 
 cd $2
-echo "------> Installing dependencis"
+echo "------> Installing dependencies"
 $cpanm --installdeps -n .
 
 echo "------> Installing plack and dependencies for fcgi deployment"
