@@ -4,7 +4,7 @@ use Rex -base;
 use Rex::Commands::Run; 
 use Rex::Commands::Gather;
 
-desc 'install a package (only redhat and ubuntu supported) with sudo access';
+desc 'install a package(--package) (only redhat and ubuntu supported) with sudo access';
 task 'package' => sub {
 	my ($param) = @_;
 	die "no package name given\n" if not defiend $param->{package};
