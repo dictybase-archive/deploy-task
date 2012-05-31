@@ -1,0 +1,43 @@
+## Command Aliases
+## These are groups of related commands...
+
+## Networking
+Cmnd_Alias NETWORKING = /sbin/route, /sbin/ifconfig, /bin/ping, /sbin/dhclient, /usr/bin/net, /sbin/iptables
+
+## Installation and management of software
+Cmnd_Alias SOFTWARE = /bin/rpm, /usr/bin/up2date, /usr/bin/yum
+
+## Services
+Cmnd_Alias SERVICES = /sbin/service, /sbin/chkconfig
+
+## Storage
+Cmnd_Alias STORAGE = /sbin/fdisk, /sbin/sfdisk, /sbin/parted, /sbin/partprobe, /bin/mount, /bin/umount
+
+## Delegating permissions
+Cmnd_Alias DELEGATING = /usr/sbin/visudo, /bin/chown, /bin/chmod, /bin/chgrp,  \ 
+                       /usr/bin/setfacl, /usr/bin/getfacl,  /usr/bin/passwd 
+
+## Processes
+Cmnd_Alias PROCESSES = /bin/nice, /bin/kill, /usr/bin/kill, /usr/bin/killall
+
+## Drivers
+Cmnd_Alias DRIVERS = /sbin/modprobe
+
+## Editing config files
+Cmd_Alias EDITORS = /usr/bin/vim
+
+Cmnd_Alias SHUTDOWN = /usr/sbin/shutdown, /usr/sbin/halt
+
+Cmnd_Alias SHELLS = /bin/sh, /bin/bash, /usr/bin/ksh, /usr/local/bin/zsh
+
+##
+# User specifications
+##
+# By default run the given commands without any password
+
+# members of sys group gets the motherload of accesses
+%sys ALL = (root) NOPASSWD: NETWORKING, SOFTWARE,  SERVICES,  STORAGE, DELEGATING,  \
+                            PROCESSES,  DRIVERS,  EDITORS,  SHUTDOWN, SHELLS
+
+# members of developer group just enough
+%developer ALL = (root) NOPASSWD: EDITORS, SHELLS, SOFTWARE
