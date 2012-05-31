@@ -3,6 +3,10 @@ use strict;
 use Rex -base;
 use Rex::Commands::Run; 
 use Rex::Commands::Gather;
+use Rex::Commands::File;
+use Rex::Commands::Fs;
+use File::Basename;
+use Try::Tiny;
 
 my $resp_callback = sub {
 	my ($stdout, $stderr) = @_;
@@ -17,10 +21,31 @@ task 'elrepo' => sub {
 	if (!is_redhat) {
 		die "your Os is not supported\n";
 	}
-	sudo sub { 
-	   run 'rpm --import http://elrepo.org/RPM-GPG-KEY-elrepo.org',  $resp_callback;
-	   run 'rpm -Uvh http://elrepo.org/elrepo-release-6-4.el6.elrepo.noarch.rpm' , $resp_callback;
-	};
+   run 'rpm --import http://elrepo.org/RPM-GPG-KEY-elrepo.org',  $resp_callback;
+   run 'rpm -Uvh http://elrepo.org/elrepo-release-6-4.el6.elrepo.noarch.rpm' , $resp_callback;
+};
+
+desc 'add a new sudoers file(--file option) in /etc/sudoers.d';
+task 'sudoers' => sub {
+	my ($param) = @_;
+	die "pass a file name using (--file) argument\n" if not exists $param->{file};
+	die "given file $param->{file} do not exist\n" if !-e $param->{file};
+
+	my $name = basename $param->{file};
+	if (is_dir('/etc/sudoers.d')) {
+		try {
+			my $fh = file_write("/etc/sudoers.d/$name");
+			my $text = do { local(@ARGV, $/) = $param->{file}; <>};
+			$fh->write($text);
+			$fh->close;
+		}
+		catch {
+			die "error in writing:$_\n";
+		};
+	}
+	else {
+		warn "/etc/sudoers.d folder do not exist in remote server!!!\n";
+	}
 };
 
 1;    # Magic true value required at end of module
