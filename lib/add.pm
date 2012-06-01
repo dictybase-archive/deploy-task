@@ -5,7 +5,6 @@ use Rex::Commands::Run;
 use Rex::Commands::Gather;
 use Rex::Commands::File;
 use Rex::Commands::Fs;
-use Rex::Commands::User;
 use File::Basename;
 use Try::Tiny;
 
@@ -54,18 +53,23 @@ task 'sudoers' => sub {
     }
 };
 
-desc 'add new groups(--name=group1:group2:...)';
+desc 'add new groups(--name=group1:group2:...) [only in remote linux system]';
 task 'groups' => sub {
     my ($param) = @_;
     die "no group name is given,  pass group using (--name=) argument\n"
         if not exists $param->{name};
+
+    if (!can_run('groupadd')) {
+    	die "remote system do not support *groupadd* command\n";
+    }
+    
     if ( $param->{name} =~ /:/ ) {
         for my $g ( split /:/, $param->{name} ) {
-            create_group $g ;
+            run "groupadd $g" ;
         }
     }
     else {
-        create_group $param->{name};
+    	run "groupadd $param->{name}";
     }
 };
 
