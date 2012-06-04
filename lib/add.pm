@@ -26,14 +26,21 @@ sub _check_user {
     }
 }
 
-desc
-    'add ELRepo repository for RHEL 6.0 or any of its derivative(CentOs etc...) system';
-task 'elrepo' => sub {
-
-    # -- guess the os for command
+before 'repos' => sub {
     if ( !is_redhat ) {
         die "your Os is not supported\n";
     }
+};
+
+desc 'add extra 3rd party repositories(elrepo and rpmforge)';
+task 'repos' => sub {
+	needs add qw/elrepo rpmforge/;
+};
+
+desc
+    'add ELRepo repository for RHEL 6.0 or any of its derivative(CentOs etc...) system';
+task 'elrepo' => sub {
+    # -- guess the os for command
     run 'rpm --import http://elrepo.org/RPM-GPG-KEY-elrepo.org',
         $resp_callback;
     run 'rpm -Uvh http://elrepo.org/elrepo-release-6-4.el6.elrepo.noarch.rpm',
