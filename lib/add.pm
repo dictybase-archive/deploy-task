@@ -5,6 +5,9 @@ use Rex::Commands::Run;
 use Rex::Commands::Gather;
 use Rex::Commands::File;
 use Rex::Commands::Fs;
+use Rex::Commands::User;
+use Rex::Interface::Fs;
+use Rex::Interface::File;
 use File::Basename;
 use Try::Tiny;
 
@@ -14,6 +17,14 @@ my $resp_callback = sub {
     say "[$server: ] $stdout\n" if $stdout;
     say "[$server: ] $stderr\n" if $stderr;
 };
+
+sub _check_user {
+    my ($user) = @_;
+    run "id -u $user";
+    if ( $? == 0 ) {
+        return $user;
+    }
+}
 
 desc
     'add ELRepo repository for RHEL 6.0 or any of its derivative(CentOs etc...) system';
@@ -59,17 +70,62 @@ task 'groups' => sub {
     die "no group name is given,  pass group using (--name=) argument\n"
         if not exists $param->{name};
 
-    if (!can_run('groupadd')) {
-    	die "remote system do not support *groupadd* command\n";
+    if ( !can_run('groupadd') ) {
+        die "remote system do not support *groupadd* command\n";
     }
-    
+
     if ( $param->{name} =~ /:/ ) {
         for my $g ( split /:/, $param->{name} ) {
-            run "groupadd $g" ;
+            run "groupadd $g";
         }
     }
     else {
-    	run "groupadd $param->{name}";
+        run "groupadd $param->{name}";
+    }
+};
+
+desc
+    'add new(--user=username and --pass=passwd) user (pass --groups=group1:group2 to add it to groups)';
+task 'user' => sub {
+    my ($param) = @_;
+    die "no user name(--user) is given\n" if not exists $param->{user};
+
+    my $cmd = 'useradd -m';
+    if ( _check_user( $param->{user} ) ) {
+        $cmd = 'usermod -a ';
+        warn "$param->{user} exists!!! going to add it to $param->{groups}\n";
+    }
+    else {
+        die "no password(--pass) is given to create a new user\n"
+            if not exists $param->{pass};
+    }
+
+    my $opt;
+    $opt->{password} = $param->{pass};
+    if ( defined $param->{groups} ) {
+        if ( $param->{groups} =~ /:/ ) {
+            for my $g ( split /:/, $param->{groups} ) {
+                push @{ $opt->{groups} }, $g;
+            }
+        }
+        else {
+            push @{ $opt->{groups} }, $param->{groups};
+        }
+    }
+    $cmd .= ' -G ' . join( ',', @{ $opt->{groups} } ) . ' ' . $param->{user};
+    run $cmd;
+
+    if ( $? != 0 ) {
+        die "$param->{user} is not created!!!!!\n";
+    }
+
+    # now the password
+    if ( $cmd =~ /useradd/ ) {
+        my $passcmd = "echo $param->{pass}:$param->{user} | chpasswd";
+        run $passcmd;
+        if ( $? != 0 ) {
+            die "could not create password for user!!!! \n";
+        }
     }
 };
 
