@@ -40,6 +40,14 @@ task 'elrepo' => sub {
         $resp_callback;
 };
 
+desc
+    'add rpmforge repository for RHEL 6.0 or any of its derivative(CentOs etc...) system';
+task 'rpmforge' => sub {
+    run 'rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt', $resp_callback;
+    run 'rpm -Uvh http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm',
+        $resp_callback;
+};
+
 desc 'add a new sudoers file(--file=filepath) in /etc/sudoers.d';
 task 'sudoers' => sub {
     my ($param) = @_;
