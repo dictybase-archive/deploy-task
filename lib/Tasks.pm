@@ -1,3 +1,4 @@
+require install;
 require setup;
 require add;
 require perl;

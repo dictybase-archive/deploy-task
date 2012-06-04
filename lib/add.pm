@@ -26,15 +26,15 @@ sub _check_user {
     }
 }
 
-before 'repos' => sub {
-    if ( !is_redhat ) {
-        die "your Os is not supported\n";
-    }
-};
 
 desc 'add extra 3rd party repositories(elrepo and rpmforge)';
 task 'repos' => sub {
 	needs add qw/elrepo rpmforge/;
+};
+before 'add:repos' => sub {
+    if ( !is_redhat ) {
+        die "your Os is not supported\n";
+    }
 };
 
 desc
