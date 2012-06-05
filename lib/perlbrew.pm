@@ -45,6 +45,7 @@ task 'install' => sub {
         sudo "echo export PERLBREW_ROOT=$root >> /etc/profile.d/perlbrew.sh";
         sudo
             'echo source ${PERLBREW_ROOT}/etc/bashrc >> ~/etc/profile.d/perlbrew.sh';
+        sudo "echo export PERL_CPANM_HOME=$root/.cpanm >> /etc/profile.d/cpanm.sh";
     }
     else {
         run "echo export PERLBREW_ROOT=$root >> ~/.bashrc";
