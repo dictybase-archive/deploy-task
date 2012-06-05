@@ -10,7 +10,7 @@ use Rex::Commands::Tail;
 # Module implementation
 #
 
-desc 'install perl using perlbrew';
+desc 'install perl using perlbrew (--version=[perl-5.10.1])';
 task 'install' => sub {
         my ($param) = @_;
         needs perlbrew 'check';
