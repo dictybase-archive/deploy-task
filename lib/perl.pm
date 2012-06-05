@@ -20,6 +20,17 @@ task 'install' => sub {
         run "nohup \$PERLBREW_ROOT/bin/perlbrew install -j 3 $version </dev/null >perlbrew.log 2>&1 &";
  };
 
+
+desc 'install perl using perlbrew without running the unit test(--version=[perl-5.10.1])';
+task 'install-notest' => sub {
+        my ($param) = @_;
+        needs perlbrew 'check';
+
+        # start perl install and put it in the background
+        my $version = $param->{version} || 'perl-5.10.1';
+        run "nohup \$PERLBREW_ROOT/bin/perlbrew install -n -j 3 $version </dev/null >perlbrew.log 2>&1 &";
+ };
+
 desc 'install threaded perl using perlbrew';
 task 'install-threaded' => sub {
         my ($param) = @_;
@@ -27,7 +38,7 @@ task 'install-threaded' => sub {
 
         # start perl install and put it in the background
         my $version = $param->{version} || 'perl-5.10.1';
-        run "nohup \$PERLBREW_ROOT/bin/perlbrew install $version -Dusethread </dev/null >perlbrew.log 2>&1 &";
+        run "nohup \$PERLBREW_ROOT/bin/perlbrew install -j 3 $version -Dusethread </dev/null >perlbrew.log 2>&1 &";
  };
 
 
