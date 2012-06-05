@@ -5,13 +5,17 @@
 Add a makefile or Build.PL declaring dependencies for your mojolicious web application
 
 Check out this repository as a submodule inside your web application folder
+
     git submodule add git://..... tasks
 
 Install Rex module
-    cpanm Rex
+
+    cpanm -n Rex
+
 Add a file named Rexfile to import all deploy tasks
-Add the following lines in your Rexfile
-     
+
+     __Rexfile__
+
      use lib 'tasks/lib';
      
      # server authorization
@@ -32,14 +36,23 @@ See list of tasks available
 
 Install the git hooks
     rex -H 'myhost.mydomain.com' git:deploy:setup 
+
   It will create a remote git repository and install the default post recieve hook from
-  hooks/post-receive.template from inside the submodule. By default, for example for user
-  **foo** the git repository will be 
+  hooks/post-receive.template from inside the submodule. By default, for example in case
+  of user __foo__ the git repository will be 
      /home/foo/git
   and the deployed folder will be
      /home/foo/gitweb
 
-Create the local deployment scripts(optional)
+  The behaviour can be changed by passing parameters to the following options 
+
+  __--deploy-to=[gitweb]__
+  __--perl-version=[perl-5.10.1]__
+  __--deploy-mode=[reverse-proxy]__
+  __--hook=[hooks/post-receive.sh]__
+
+
+Create the local deployment scripts
     rex 'git:init'
   It will create a **deploy** folder and copy bunch of shell scripts that could be invoked
   by the git post recieve hook.
