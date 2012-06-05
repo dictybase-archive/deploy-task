@@ -11,7 +11,7 @@ use Rex::Commands::Run;
 desc 'install cpanm for the current perlbrew';
 task 'install-cpanm' => sub {
     	needs perlbrew 'check';
-        say run '$PERLBREW_ROOT/bin/perlbrew install-cpanm';
+        run '$PERLBREW_ROOT/bin/perlbrew install-cpanm';
 };
 
 desc 'create new local lib(--local-lib) for the perl version(--perl-version)under perlbrew';
@@ -27,7 +27,7 @@ task 'create' => sub {
         	$cmd = "\$PERLBREW_ROOT/bin/perlbrew lib create $lib";	
         	
         }
-        say run $cmd;
+        run $cmd;
 };
 
 
