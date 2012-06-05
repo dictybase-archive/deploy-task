@@ -1,5 +1,5 @@
-require install;
 require setup;
+require install;
 require add;
 require perl;
 require git;
