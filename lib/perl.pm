@@ -17,7 +17,7 @@ task 'install' => sub {
 
         # start perl install and put it in the background
         my $version = $param->{version} || 'perl-5.10.1';
-        run "nohup \$PERLBREW_ROOT/bin/perlbrew install $version </dev/null >perlbrew.log 2>&1 &";
+        run "nohup \$PERLBREW_ROOT/bin/perlbrew install -j 3 $version </dev/null >perlbrew.log 2>&1 &";
  };
 
 desc 'install threaded perl using perlbrew';
