@@ -49,4 +49,9 @@ task 'install-status' => sub {
 	tail "$path/build.log";	   
 };
 
+desc 'install perl modules(toolchain) for managing dependencies'; 
+task 'install-toolchain' => sub {
+	run 'nohup source $PERLBREW_ROOT/etc/bashrc && $PERLBREW_ROOT/bin/cpanm -n Devel::Loaded App::cpanoutdated App::pmuninstall Carton </dev/null > cpanm.log 2>&1 &';
+};
+
 1;    # Magic true value required at end of module

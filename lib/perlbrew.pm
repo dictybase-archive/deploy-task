@@ -86,12 +86,12 @@ task 'available' => sub {
     say run '$PERLBREW_ROOT/bin/perlbrew available';
 };
 
-desc 'make this the default perl';
+desc 'make this the default perl (--version=<> mandatory)';
 task 'switch' => sub {
     needs perlbrew 'check';
 
     my ($param) = @_;
-    my $version = $param->{'perl-version'}
+    my $version = $param->{'version'}
         or die "pass a version argument with --perl-version=\n";
     say run "\$PERLBREW_ROOT/bin/perlbrew switch $version";
 };
