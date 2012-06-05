@@ -10,12 +10,12 @@ use Rex::Commands::Run;
 # Module implementation
 #
 
-desc 'install perlbrew';
+desc 'install perlbrew (--install-root=[full-path-of-remote-folder] optional)';
 task 'install' => sub {
     my ($param) = @_;
     my $prepend
-        = $param->{install_root}
-        ? "export PERLBREW_ROOT=$param->{install_root}"
+        = $param->{'install-root'}
+        ? "export PERLBREW_ROOT=$param->{'install-root'}"
         : '';
 
     if ( can_run 'curl' ) {
@@ -38,7 +38,7 @@ task 'install' => sub {
     }
 
     # source perlbrew
-    my $root = $param->{install_root} || '~/perl5/perlbrew';
+    my $root = $param->{'install-root'} || '~/perl5/perlbrew';
     $root .= '/etc/bashrc';
     run "echo \'source $root \' >> ~/.bashrc";
 
