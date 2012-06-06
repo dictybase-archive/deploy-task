@@ -90,3 +90,7 @@ Now push the current branch to this remote and it will check out the code in
 /home/foo/gitweb
 
     git push deploy
+
+The post receive hook ultimately call ```after_push.sh``` shell script which in turn start
+the web application using either of fcgi or reverse-proxy(starman) plack backend. It also
+creates neccesary run script to put it under the control of daemontools.
