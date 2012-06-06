@@ -42,6 +42,7 @@ The following tasks has to be run minimally
 + perlbrew:install
 + perlbrew:install-cpanm
 + perl:install
++ perl:install-toolchain
 
 
 ### Deploying web application
