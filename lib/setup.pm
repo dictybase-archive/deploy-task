@@ -76,5 +76,15 @@ task 'oracle-client' => sub {
     sudo "echo $lib >> /etc/ld.so.conf.d/oracle.conf";
 };
 
+desc 'setup global env vars(--mode=[production] --log-level=[error]) for mojolicious web application deployment';
+task 'global-mojo' => sub {
+	my ($param) = @_;
+	my $mode = $param->{mode} || 'production';
+	my $log_level = $param->{'log-level'} || 'error';
+
+	run "echo export MOJO_MODE=$mode >> /etc/profile.d/mojolicious.sh";
+	run "echo export MOJO_LOG_LEVEL=$log_level >> /etc/profile.d/mojolicious.sh";
+};
+
 1;    # Magic true value required at end of module
 
