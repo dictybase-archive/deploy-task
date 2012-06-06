@@ -10,6 +10,8 @@ LOCAL_LIB=$PERL_VERSION\@$PROJECT
 SERVICE=$APP_DIR/service
 APP_SERVICE=$SERVICE/${PROJECT}runner
 RUN_FILE=$APP_SERVICE/run
+ENCRYPT_CONFIG_FOLDER=$4
+PASSWD=$5
 cpanm=$PERLBREW_ROOT/bin/cpanm
 perlbrew=$PERLBREW_ROOT/bin/perlbrew
 
@@ -24,6 +26,27 @@ setup_daemontool() {
 		ln -s $APP_SERVICE /service/$PROJECT
 	fi
 
+}
+
+copy_encrypted_config() {
+	if ! [ -z "$MOJO_MODE" ]; then
+	    MOJO_MODE='production'
+	fi
+
+	encrypt_config=${ENC_CONFIG_FOLDER}/${PROJECT}/${MOJO_MODE}.crypt
+	plain_config=${ENC_CONFIG_FOLDER}/${PROJECT}/${MOJO_MODE}.yml
+	sample_config=${APP_DIR}/config/sample.yml
+
+	if [ -e "$encrypt_config" ]; then
+     gpg --yes --passphrase $PASSWD --output $plain_config $encrypt_config	   
+     
+     if [ -e "$sample_config" ]; then
+        running_perl=`which perl`
+        $running_perl ${APP_DIR}/deploy/merge_config.pl $plain_config $sample_config $MOJO_MODE
+     fi
+
+     rm $plain_config
+	fi
 }
 
 if [ -e $cpanm ]; then
@@ -46,5 +69,5 @@ perlbrew use $LOCAL_LIB
 
 cd $APP_DIR
 if [ -x deploy/$installer ]; then
-  deploy/$installer cpanm $APP_DIR  && setup_daemontool
+  deploy/$installer cpanm $APP_DIR  && copy_encrypted_config && setup_daemontool
 fi

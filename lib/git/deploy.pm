@@ -25,10 +25,19 @@ sub _infer_project_name {
 }
 
 sub _get_remote_folder {
-	my ($param) = @_;
+    my ($param) = @_;
     my $remote_folder = $param->{'remote-folder'} || 'hushhush';
     $remote_folder .= '/' . get 'project_name';
     return $remote_folder;
+}
+
+sub _get_pass {
+    my ($param) = @_;
+    return $param->{pass} if exists $param->{pass};
+
+    my $pass = prompt('[password for encryption: ]');
+    die "no password is given\n" if $pass =~ /^\s+$/;
+    return $pass;
 }
 
 desc
@@ -37,24 +46,17 @@ task 'upload-config' => sub {
     my ($param) = @_;
     die "no config(--config=) file given\n" if not exists $param->{config};
 
-    my $pass;
-    LOCAL {
-        if ( not exists $param->{pass} ) {
-            $pass = prompt('[password for encryption: ]');
-            die "no password is given\n" if $pass =~ /^\s+$/;
-        }
-    };
-
-	my $remote_folder = _get_remote_folder($param);
-    if (!is_dir($remote_folder)) {
-    	mkdir $remote_folder;
+    my $pass          = _get_pass($param);
+    my $remote_folder = _get_remote_folder($param);
+    if ( !is_dir($remote_folder) ) {
+        mkdir $remote_folder;
     }
     my $deploy_mode = run 'echo $MOJO_MODE';
     if ( $? != 0 ) {
         $deploy_mode = 'production';
     }
 
-    my $remote_file = $remote_folder . '/' . $deploy_mode . '.yml';
+    my $remote_file      = $remote_folder . '/' . $deploy_mode . '.yml';
     my $remote_encr_file = $remote_folder . '/' . $deploy_mode . '.crypt';
 
     upload $param->{config}, $remote_file;
@@ -105,6 +107,7 @@ task 'hooks' => sub {
 # deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
 # hook : post-receive hook file,  default is hooks/post-receive.template
 # remote-config-folder : to look for encrypted config file with sensitive information
+# pass : password to decrypt the encrypted config file from remote-config-folder
     my ($param) = @_;
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
@@ -135,8 +138,11 @@ task 'hooks' => sub {
     $content =~ s{<%=\s?(perl-version)\s?%>}{$perlv};
     $content =~ s{<%=\s?(deploy-mode)\s?%>}{$deploy_mode};
 
-    if (exists $param->{'remote-config-folder'}) {
-      $content =~ s{<%=\s?(enc-config-folder)\s?%>}{$param->{'remote-config-folder'}};
+    if ( exists $param->{'remote-config-folder'} ) {
+        $content
+            =~ s{<%=\s?(enc-config-folder)\s?%>}{$param->{'remote-config-folder'}};
+        my $pass = _get_pass($param);
+        $content =~ s{<%=\s?(pass)\s?%>}{$pass};
     }
 
     my $fh = file_write $remote_file;
