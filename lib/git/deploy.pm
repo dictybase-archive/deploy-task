@@ -9,6 +9,7 @@ use Rex::Commands::File;
 use File::Spec::Functions qw/catfile curdir updir catdir rel2abs/;
 use File::Copy;
 use File::Basename;
+use IO::Prompt::Tiny qw/prompt/;
 
 sub _infer_project_name {
     return if get 'project_name';
@@ -23,6 +24,46 @@ sub _infer_project_name {
     }
 }
 
+sub _get_remote_folder {
+	my ($param) = @_;
+    my $remote_folder = $param->{'remote-folder'} || 'hushhush';
+    $remote_folder .= '/' . get 'project_name';
+    return $remote_folder;
+}
+
+desc
+    'upload and encrypt config(--config=[] and --pass=[]) file in remote folder(--remote-folder=[${HOME}/hushush])';
+task 'upload-config' => sub {
+    my ($param) = @_;
+    die "no config(--config=) file given\n" if not exists $param->{config};
+
+    my $pass;
+    LOCAL {
+        if ( not exists $param->{pass} ) {
+            $pass = prompt('[password for encryption: ]');
+            die "no password is given\n" if $pass =~ /^\s+$/;
+        }
+    };
+
+	my $remote_folder = _get_remote_folder($param);
+    if (!is_dir($remote_folder)) {
+    	mkdir $remote_folder;
+    }
+    my $deploy_mode = run 'echo $MOJO_MODE';
+    if ( $? != 0 ) {
+        $deploy_mode = 'production';
+    }
+
+    my $remote_file = $remote_folder . '/' . $deploy_mode . '.yml';
+    my $remote_encr_file = $remote_folder . '/' . $deploy_mode . '.crypt';
+
+    upload $param->{config}, $remote_file;
+
+    #encrypt file and then remove original
+    run "gpg --yes --passphrase $pass -c -o $remote_encr_file $remote_file";
+    unlink $remote_file;
+};
+
 desc "Create remote git repository and install push hooks";
 task 'setup', sub {
 
@@ -30,7 +71,8 @@ task 'setup', sub {
 # git-path : remote folder where the git repository will be initiated,  by default it
 #            will be git inside the user's home folder
     my ($param) = @_;
-    my $git_path = $param->{'git-path'} || 'git/' . get 'project_name';
+    my $git_path = $param->{'git-path'} || 'git';
+    $git_path .= '/' . get 'project_name';
     set git_path => $git_path;
 
     ## -- create a folder and give sticky permission
@@ -62,13 +104,15 @@ task 'hooks' => sub {
 # perl-version : default is perl-5.10.1
 # deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
 # hook : post-receive hook file,  default is hooks/post-receive.template
+# remote-folder : to look for encrypted config file with sensitive information
     my ($param) = @_;
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
 
     my $home        = run 'echo $HOME';
     my $deploy_path = $param->{'deploy-to'}
-        || $home . '/webapps/' . get 'project_name';
+        || $home . '/webapps';
+    $deploy_path .= '/' . get 'project_name';
     if ( !is_dir($deploy_path) ) {
         run "mkdir -p $deploy_path";
         chmod 'g+ws', $deploy_path;
@@ -115,8 +159,9 @@ task 'init' => sub {
     }
 };
 
-before 'git:deploy:setup' => sub { _infer_project_name() };
-before 'git:deploy:init'  => sub { _infer_project_name() };
-before 'git:deploy:hooks' => sub { _infer_project_name() };
+before 'git:deploy:setup'         => sub { _infer_project_name() };
+before 'git:deploy:init'          => sub { _infer_project_name() };
+before 'git:deploy:hooks'         => sub { _infer_project_name() };
+before 'git:deploy:upload-config' => sub { _infer_project_name() };
 
 1;    # Magic true value required at end of module
