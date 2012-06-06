@@ -104,7 +104,7 @@ task 'hooks' => sub {
 # perl-version : default is perl-5.10.1
 # deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
 # hook : post-receive hook file,  default is hooks/post-receive.template
-# remote-folder : to look for encrypted config file with sensitive information
+# remote-config-folder : to look for encrypted config file with sensitive information
     my ($param) = @_;
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
@@ -134,6 +134,10 @@ task 'hooks' => sub {
     $content =~ s{<%=\s?(deploy-to)\s?%>}{$deploy_path};
     $content =~ s{<%=\s?(perl-version)\s?%>}{$perlv};
     $content =~ s{<%=\s?(deploy-mode)\s?%>}{$deploy_mode};
+
+    if (exists $param->{'remote-config-folder'}) {
+      $content =~ s{<%=\s?(enc-config-folder)\s?%>}{$param->{'remote-config-folder'}};
+    }
 
     my $fh = file_write $remote_file;
     $fh->write($content);
