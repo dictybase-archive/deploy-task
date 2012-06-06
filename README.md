@@ -1,5 +1,4 @@
 
-
 ## Getting started
 
 Add a makefile or Build.PL declaring dependencies for your mojolicious web application
@@ -85,9 +84,9 @@ by the git post recieve hook. Then add this **deploy** folder in the repository
 
 Add the remote repository in git
 
-   git remote add deploy ssh://user@myhost.mydomain.com/home/foo/git
+    git remote add deploy ssh://user@myhost.mydomain.com/home/foo/git
 
 Now push the current branch to this remote and it will check out the code in
 /home/foo/gitweb
 
-  git push deploy
+    git push deploy
