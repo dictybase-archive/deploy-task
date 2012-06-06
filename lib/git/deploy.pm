@@ -6,8 +6,22 @@ use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Gather;
 use Rex::Commands::File;
-use File::Spec::Functions qw/catfile curdir updir catdir/;
+use File::Spec::Functions qw/catfile curdir updir catdir rel2abs/;
 use File::Copy;
+use File::Basename;
+
+sub _infer_project_name {
+    return if get 'project_name';
+
+    my $task_folder = get 'task_folder';
+    if ( -e 'Rexfile' or -e catdir( curdir(), $task_folder ) ) {
+        set project_name => basename( rel2abs( curdir() ) );
+    }
+    else {
+        die
+            "could not get **project name**: rex must be run from the project directory!!!\n";
+    }
+}
 
 desc "Create remote git repository and install push hooks";
 task 'setup', sub {
@@ -16,7 +30,7 @@ task 'setup', sub {
 # git-path : remote folder where the git repository will be initiated,  by default it
 #            will be git inside the user's home folder
     my ($param) = @_;
-    my $git_path = $param->{'git-path'} || 'git';
+    my $git_path = $param->{'git-path'} || 'git/' . get 'project_name';
     set git_path => $git_path;
 
     ## -- create a folder and give sticky permission
@@ -52,8 +66,9 @@ task 'hooks' => sub {
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
 
-    my $home = run 'echo $HOME';
-    my $deploy_path = $param->{'deploy-to'} || $home . '/gitweb';
+    my $home        = run 'echo $HOME';
+    my $deploy_path = $param->{'deploy-to'}
+        || $home . '/webapps/' . get 'project_name';
     if ( !is_dir($deploy_path) ) {
         run "mkdir -p $deploy_path";
         chmod 'g+ws', $deploy_path;
@@ -66,14 +81,8 @@ task 'hooks' => sub {
     }
     else {
         my $task_folder = get 'task_folder';
-        if ( -e 'Rexfile' or -e catdir( curdir(), $task_folder ) ) {
-            $hook_file = catfile( curdir(), $task_folder, 'hooks',
-                'post-receive.template' );
-        }
-        else {
-            $hook_file
-                = catfile( curdir(), 'hooks', 'post-receive.template' );
-        }
+        $hook_file = catfile( curdir(), $task_folder, 'hooks',
+            'post-receive.template' );
     }
     my $content = do { local ( @ARGV, $/ ) = $hook_file; <> };
 
@@ -91,14 +100,8 @@ task 'hooks' => sub {
 
 desc 'Create mojolicious deployment scripts for your web application';
 task 'init' => sub {
-    my $to_dir = catdir( curdir(), updir(), 'deploy' );
-    my $from_dir = catdir( curdir(), 'templates' );
-    my $task_folder = get 'task_folder';
-    ## -- making guess
-    if ( -e 'Rexfile' or -e catdir( curdir(), $task_folder ) ) {
-        $to_dir = catdir( curdir(), 'deploy' );
-        $from_dir = catfile( curdir(), $task_folder, 'templates' );
-    }
+    my $to_dir = catdir( curdir(), 'deploy' );
+    my $from_dir = catfile( curdir(), get 'task_folder', 'templates' );
     if ( !-e $to_dir ) {
         mkdir $to_dir;
     }
@@ -111,5 +114,9 @@ task 'init' => sub {
         chmod '+x', catfile( $to_dir, $wo_ext );
     }
 };
+
+before 'git:deploy:setup' => sub { _infer_project_name() };
+before 'git:deploy:init'  => sub { _infer_project_name() };
+before 'git:deploy:hooks' => sub { _infer_project_name() };
 
 1;    # Magic true value required at end of module
