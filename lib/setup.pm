@@ -4,32 +4,16 @@ use Rex -base;
 use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Upload;
+use Rex::Commands::File;
 
-desc 'Install and setup daemontools(v 0.76) from source';
+desc 'Add daemontools to run via upstart';
 task 'daemontools', sub {
-    my $dirname = 'daemontools-0.76';
-    run 'mkdir -p /package && chmod 1755 /package';
-    run
-        'cd /package &&  curl -O http://cr.yp.to/daemontools/daemontools-0.76.tar.gz';
-    run 'cd /package &&  tar xvzf daemontools-0.76.tar.gz';
-
-    # patch for installing in linux
-    run
-        "cd /package/admin/$dirname &&  sed -i 's/^\\(gcc.*\\)\$/\\1 \-include \\/usr\\/include\\/errno\\.h/' ./src/conf-cc";
-
-    # compile daemontools and then create /service and /command
-    run "cd /package/admin/$dirname &&  ./package/install";
-
-    # now the post install task
-    # fixing the startup particurarly for ubuntu and redhat which uses upstart
-
-    #1. Remove the line added in /etc/inittab
-    run " sed -i '/^SV/d' /etc/inittab";
-
-    #2. Generate startup file for upstart
-    run
-        "echo -e 'start on runlevel [12345]\nrespawn\nexec /command/svscanboot' |  tee /etc/init/svscan.conf";
-    run ' initctl reload-configuration &&  initctl start svscan';
+    #Generate startup file for upstart
+	my $fh = file_write('/etc/init/svscan.conf');
+	$fh->write("start on runlevel [12345]\nrespawn\n");
+	$fh->write("exec /command/svscanboot");
+	$fh->close;
+    run 'initctl reload-configuration &&  initctl start svscan';
 };
 
 desc
