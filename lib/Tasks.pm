@@ -6,3 +6,4 @@ require git;
 require git::deploy;
 require perlbrew;
 require perlbrew::lib;
+require setup::apache;
