@@ -26,10 +26,9 @@ sub _check_user {
     }
 }
 
-
-desc 'add extra 3rd party repositories(elrepo and rpmforge)';
+desc 'add extra 3rd party repositories(elrepo,rpmforge and atomicorp)';
 task 'repos' => sub {
-	needs add qw/elrepo rpmforge/;
+    needs add qw/elrepo rpmforge atomicorp/;
 };
 before 'add:repos' => sub {
     if ( !is_redhat ) {
@@ -40,6 +39,7 @@ before 'add:repos' => sub {
 desc
     'add ELRepo repository for RHEL 6.0 or any of its derivative(CentOs etc...) system';
 task 'elrepo' => sub {
+
     # -- guess the os for command
     run 'rpm --import http://elrepo.org/RPM-GPG-KEY-elrepo.org',
         $resp_callback;
@@ -51,7 +51,16 @@ desc
     'add rpmforge repository for RHEL 6.0 or any of its derivative(CentOs etc...) system';
 task 'rpmforge' => sub {
     run 'rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt', $resp_callback;
-    run 'rpm -Uvh http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm',
+    run
+        'rpm -Uvh http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm',
+        $resp_callback;
+};
+
+desc
+    'add atomicorp repository for RHEL 6.0 or any of its derivaties(CentOs etc ...) system';
+task 'atomicorp' => sub {
+    run
+        'rpm -Uvh http://www6.atomicorp.com/channels/atomic/centos/6/i386/RPMS/atomic-release-1.0-14.el6.art.noarch.rpm',
         $resp_callback;
 };
 
@@ -61,7 +70,6 @@ task 'sudoers' => sub {
     die "pass a file name using (--file) argument\n"
         if not exists $param->{file};
     die "given file $param->{file} do not exist\n" if !-e $param->{file};
-
     my $name = basename $param->{file};
     if ( is_dir('/etc/sudoers.d') ) {
         try {
