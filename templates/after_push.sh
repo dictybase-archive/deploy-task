@@ -11,7 +11,6 @@ SERVICE=$APP_DIR/service
 APP_SERVICE=$SERVICE/${PROJECT}runner
 RUN_FILE=$APP_SERVICE/run
 ENCRYPT_CONFIG_FOLDER=$4
-PASSWD=$5
 cpanm=$PERLBREW_ROOT/bin/cpanm
 perlbrew=$PERLBREW_ROOT/bin/perlbrew
 
@@ -33,20 +32,16 @@ copy_encrypted_config() {
 	    MOJO_MODE='production'
 	fi
 
-	encrypt_config=${ENC_CONFIG_FOLDER}/${PROJECT}/${MOJO_MODE}.crypt
-	plain_config=${ENC_CONFIG_FOLDER}/${PROJECT}/${MOJO_MODE}.yml
+	actual_config=${ENC_CONFIG_FOLDER}/${PROJECT}/${MOJO_MODE}.yml
 	sample_config=${APP_DIR}/config/sample.yml
 
-	if [ -e "$encrypt_config" ]; then
-     gpg --yes --passphrase $PASSWD --output $plain_config $encrypt_config	   
      
-     if [ -e "$sample_config" ]; then
+  if [ -e "$sample_config" ] && [ -e "$actual_config" ]; then
         running_perl=`which perl`
-        $running_perl ${APP_DIR}/deploy/merge_config.pl $plain_config $sample_config $MOJO_MODE
-     fi
-
-     rm $plain_config
-	fi
+        $running_perl ${APP_DIR}/deploy/merge_config.pl $actual_config $sample_config $MOJO_MODE
+  else
+        echo cannot find the config file $actual_config and $sample_config
+  fi
 }
 
 if [ -e $cpanm ]; then

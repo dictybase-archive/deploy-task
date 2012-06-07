@@ -9,7 +9,6 @@ use Rex::Commands::File;
 use File::Spec::Functions qw/catfile curdir updir catdir rel2abs/;
 use File::Copy;
 use File::Basename;
-use IO::Prompt::Tiny qw/prompt/;
 
 sub _infer_project_name {
     return if get 'project_name';
@@ -31,22 +30,12 @@ sub _get_remote_folder {
     return $remote_folder;
 }
 
-sub _get_pass {
-    my ($param) = @_;
-    return $param->{pass} if exists $param->{pass};
-
-    my $pass = prompt('[password for encryption: ]');
-    die "no password is given\n" if $pass =~ /^\s+$/;
-    return $pass;
-}
-
 desc
-    'upload and encrypt config(--config=[] and --pass=[]) file in remote folder(--remote-folder=[${HOME}/hushush])';
+    'upload config(--config=[])  file in remote folder(--remote-folder=[${HOME}/hushush])';
 task 'upload-config' => sub {
     my ($param) = @_;
     die "no config(--config=) file given\n" if not exists $param->{config};
 
-    my $pass          = _get_pass($param);
     my $remote_folder = _get_remote_folder($param);
     if ( !is_dir($remote_folder) ) {
         mkdir $remote_folder;
@@ -57,13 +46,7 @@ task 'upload-config' => sub {
     }
 
     my $remote_file      = $remote_folder . '/' . $deploy_mode . '.yml';
-    my $remote_encr_file = $remote_folder . '/' . $deploy_mode . '.crypt';
-
     upload $param->{config}, $remote_file;
-
-    #encrypt file and then remove original
-    run "gpg --yes --passphrase $pass -c -o $remote_encr_file $remote_file";
-    unlink $remote_file;
 };
 
 desc "Create remote git repository and install push hooks";
@@ -107,7 +90,6 @@ task 'hooks' => sub {
 # deploy-mode : should be either of fcgi or reverse-proxy,  default is reverse-proxy
 # hook : post-receive hook file,  default is hooks/post-receive.template
 # remote-config-folder : to look for encrypted config file with sensitive information
-# pass : password to decrypt the encrypted config file from remote-config-folder
     my ($param) = @_;
     my $deploy_mode = $param->{'deploy-mode'}  || 'reverse-proxy';
     my $perlv       = $param->{'perl-version'} || 'perl-5.10.1';
@@ -141,8 +123,6 @@ task 'hooks' => sub {
     if ( exists $param->{'remote-config-folder'} ) {
         $content
             =~ s{<%=\s?(enc-config-folder)\s?%>}{$param->{'remote-config-folder'}};
-        my $pass = _get_pass($param);
-        $content =~ s{<%=\s?(pass)\s?%>}{$pass};
     }
 
     my $fh = file_write $remote_file;
