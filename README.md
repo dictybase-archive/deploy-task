@@ -34,6 +34,8 @@ To see list of tasks available
 
      ......
 
+     echo Rexfile >> .gitignore
+
 ### Setting up the remote system
 The following tasks has to be run minimally
 
@@ -69,9 +71,9 @@ __--deploy-to=[${HOME}/gitweb]__
 
 __--perl-version=[perl-5.10.1]__
 
-__--deploy-mode=[reverse-proxy]__
+__--deploy-mode=[reverse-proxy|fcgi]__
 
-__--hook=[hooks/post-receive.sh]__
+__--hook=[hooks/post-receive.template]__
 
 
 Create the local deployment scripts
