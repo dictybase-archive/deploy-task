@@ -135,8 +135,9 @@ task 'hooks' => sub {
 desc 'Create mojolicious deployment scripts for your web application';
 task 'init' => sub {
     LOCAL {
+    	my $task_folder = get 'task_folder';
         my $to_dir = catdir( curdir(), 'deploy' );
-        my $from_dir = catfile( curdir(), get 'task_folder', 'templates' );
+        my $from_dir = catfile( curdir(), $task_folder, 'templates' );
         if ( !-e $to_dir ) {
             mkdir $to_dir;
         }
