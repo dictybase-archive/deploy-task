@@ -29,4 +29,10 @@ task 'vhost' => sub {
     $fh->close;
 };
 
+desc 'start apache2 and make sure it gets started at boot';
+task 'startup' => sub {
+    service 'apache2' => 'start';
+    service 'apache2' => 'ensure', 'started';
+};
+
 1;
