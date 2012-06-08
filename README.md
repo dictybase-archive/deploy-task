@@ -20,7 +20,7 @@ Add a file named Rexfile to import all deploy tasks
      private_key 'key';
      public_key 'pkey';
      key_auth;
-     set task_folder 'tasks';
+     set task_folder => 'tasks';
 
 		 # import modules
      require Tasks;
