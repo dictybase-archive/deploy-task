@@ -45,7 +45,7 @@ task 'upload-config' => sub {
         $deploy_mode = 'production';
     }
 
-    my $remote_file      = $remote_folder . '/' . $deploy_mode . '.yml';
+    my $remote_file = $remote_folder . '/' . $deploy_mode . '.yml';
     upload $param->{config}, $remote_file;
 };
 
@@ -134,23 +134,24 @@ task 'hooks' => sub {
 
 desc 'Create mojolicious deployment scripts for your web application';
 task 'init' => sub {
-    my $to_dir = catdir( curdir(), 'deploy' );
-    my $from_dir = catfile( curdir(), get 'task_folder', 'templates' );
-    if ( !-e $to_dir ) {
-        mkdir $to_dir;
-    }
-    opendir my $dir, $from_dir or die "cannot open dir:$!";
-    my @files = grep { !/^\.\.?$/ } readdir $dir;
-    for my $name (@files) {
-        ( my $wo_ext = $name ) =~ s/\.sh$//;
-        copy catfile( $from_dir, $name ), catfile( $to_dir, $wo_ext )
-            or die "Copy failed for $name to $wo_ext $!";
-        chmod '+x', catfile( $to_dir, $wo_ext );
+    LOCAL {
+        my $to_dir = catdir( curdir(), 'deploy' );
+        my $from_dir = catfile( curdir(), get 'task_folder', 'templates' );
+        if ( !-e $to_dir ) {
+            mkdir $to_dir;
+        }
+        opendir my $dir, $from_dir or die "cannot open dir:$!";
+        my @files = grep { !/^\.\.?$/ } readdir $dir;
+        for my $name (@files) {
+            ( my $wo_ext = $name ) =~ s/\.sh$//;
+            copy catfile( $from_dir, $name ), catfile( $to_dir, $wo_ext )
+                or die "Copy failed for $name to $wo_ext $!";
+            chmod '+x', catfile( $to_dir, $wo_ext );
+        }
     }
 };
 
 before 'git:deploy:setup'         => sub { _infer_project_name() };
-before 'git:deploy:init'          => sub { _infer_project_name() };
 before 'git:deploy:hooks'         => sub { _infer_project_name() };
 before 'git:deploy:upload-config' => sub { _infer_project_name() };
 
