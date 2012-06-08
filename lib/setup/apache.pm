@@ -15,6 +15,15 @@ task 'envvars' => sub {
     my $fh = file_append('/etc/sysconfig/httpd');
     $fh->write($content);
     $fh->close;
+
+    if ( $content =~ /WEBAPPS_DIR=(\S+)/ ) {
+        my $file = '/etc/httpd/conf.d/perl.conf';
+        if ( is_file($file) ) {
+            my $fh = file_append($file);
+            $fh->write("PerlSetEnv WEBAPPS_DIR $1");
+            $fh->close;
+        }
+    }
 };
 
 desc
