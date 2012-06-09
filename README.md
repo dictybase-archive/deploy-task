@@ -67,6 +67,8 @@ The behaviour can be changed by passing parameters to the following options
 
 __--git-path=[${HOME}/git]__
 
+__--branch=[release]__
+
 __--deploy-to=[${HOME}/gitweb]__
 
 __--perl-version=[perl-5.10.1]__

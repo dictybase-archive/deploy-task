@@ -53,10 +53,12 @@ desc "Create remote git repository and install push hooks";
 task 'setup', sub {
 
 # -- one options
+# branch : branch that will be deployed,  default is release
 # git-path : remote folder where the git repository will be initiated,  by default it
 #            will be git inside the user's home folder
     my ($param) = @_;
     my $git_path = $param->{'git-path'} || 'git';
+    my $branch = $param->{branch} || 'release';
     $git_path .= '/' . get 'project_name';
     set git_path => $git_path;
 
@@ -72,6 +74,7 @@ task 'setup', sub {
         run
             "cd $git_path && git config --bool receive.denyNonFastForwards false";
         run "cd $git_path && git config receive.denyCurrentBranch ignore";
+        run "cd $git_path && sed -i -e \'s/master/$branch/\' .git/HEAD";
 
         do_task 'git:deploy:hooks';
     }
