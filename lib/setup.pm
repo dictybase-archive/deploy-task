@@ -65,6 +65,10 @@ task 'oracle-client' => sub {
     sudo "echo export ORACLE_HOME=$lib >> /etc/profile.d/oracle.sh";
     sudo "echo \' export PATH=\$PATH:$bin \' >> /etc/profile.d/oracle.sh";
     sudo "echo $lib >> /etc/ld.so.conf.d/oracle.conf";
+
+	# create symlink,  needed for client library installation
+    my $file 'run rpm -qlp $tmpdir/*basic*.rpm | grep libclntsh';
+    symlink $file, "$lib/libclntsh.so";
 };
 
 desc
