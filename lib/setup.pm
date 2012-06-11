@@ -55,7 +55,7 @@ task 'oracle-client' => sub {
     upload $_, $tmpdir for @rpms;
 
     # install
-    sudo "rpm -i $tmpdir/*basic*.rpm && rpm -i $tmpdir/*sqlplus*.rpm";
+    sudo "rpm -i $tmpdir/*basic*.rpm && rpm -i $tmpdir/*sqlplus*.rpm && rpm -i $tmpdir/*devel*.rpm";
 
     #extract value of lib folder
     my $lib = run "dirname `(rpm -qlp $tmpdir/*basic*.rpm | grep libclntsh)`";
@@ -65,10 +65,6 @@ task 'oracle-client' => sub {
     sudo "echo export ORACLE_HOME=$lib >> /etc/profile.d/oracle.sh";
     sudo "echo \' export PATH=\$PATH:$bin \' >> /etc/profile.d/oracle.sh";
     sudo "echo $lib >> /etc/ld.so.conf.d/oracle.conf";
-
-	# create symlink,  needed for client library installation
-    my $file 'run rpm -qlp $tmpdir/*basic*.rpm | grep libclntsh';
-    symlink $file, "$lib/libclntsh.so";
 };
 
 desc
