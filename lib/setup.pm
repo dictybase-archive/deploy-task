@@ -8,11 +8,12 @@ use Rex::Commands::File;
 
 desc 'Add daemontools to run via upstart';
 task 'daemontools', sub {
+
     #Generate startup file for upstart
-	my $fh = file_write('/etc/init/svscan.conf');
-	$fh->write("start on runlevel [12345]\nrespawn\n");
-	$fh->write("exec /command/svscanboot");
-	$fh->close;
+    my $fh = file_write('/etc/init/svscan.conf');
+    $fh->write("start on runlevel [12345]\nrespawn\n");
+    $fh->write("exec /command/svscanboot");
+    $fh->close;
     run 'initctl reload-configuration &&  initctl start svscan';
 };
 
@@ -28,6 +29,11 @@ task 'shared-folder' => sub {
     chgrp $group, $folder;
     run "chmod g+r,g+w,g+x,g+s $folder";
     run "setfacl -k -b $folder && setfacl -d -m u::rwx,g::rwx,o::r-- $folder";
+
+    if ( is_dir('/service') ) {    #it should be writable by deploy group
+        chgrp $group, '/service';
+        chmod 'g+w', '/service';
+    }
 };
 
 desc
@@ -44,30 +50,33 @@ task 'oracle-client' => sub {
             if scalar @rpms == 0;
     };
 
-	# upload the rpms
-	my $tmpdir = run 'mktemp -d';
-    upload $_,  $tmpdir for @rpms;
+    # upload the rpms
+    my $tmpdir = run 'mktemp -d';
+    upload $_, $tmpdir for @rpms;
 
-	# install
+    # install
     sudo "rpm -i $tmpdir/*basic*.rpm && rpm -i $tmpdir/*sqlplus*.rpm";
 
     #extract value of lib folder
     my $lib = run "dirname `(rpm -qlp $tmpdir/*basic*.rpm | grep libclntsh)`";
-    my $bin = run "dirname `(rpm -qlp $tmpdir/*sqlplus*.rpm | grep -E 'sqlplus\$')`";
+    my $bin = run
+        "dirname `(rpm -qlp $tmpdir/*sqlplus*.rpm | grep -E 'sqlplus\$')`";
 
     sudo "echo export ORACLE_HOME=$lib >> /etc/profile.d/oracle.sh";
     sudo "echo \' export PATH=\$PATH:$bin \' >> /etc/profile.d/oracle.sh";
     sudo "echo $lib >> /etc/ld.so.conf.d/oracle.conf";
 };
 
-desc 'setup global env vars(--mode=[production] --log-level=[error]) for mojolicious web application deployment';
+desc
+    'setup global env vars(--mode=[production] --log-level=[error]) for mojolicious web application deployment';
 task 'global-mojo' => sub {
-	my ($param) = @_;
-	my $mode = $param->{mode} || 'production';
-	my $log_level = $param->{'log-level'} || 'error';
+    my ($param) = @_;
+    my $mode      = $param->{mode}        || 'production';
+    my $log_level = $param->{'log-level'} || 'error';
 
-	run "echo export MOJO_MODE=$mode >> /etc/profile.d/mojolicious.sh";
-	run "echo export MOJO_LOG_LEVEL=$log_level >> /etc/profile.d/mojolicious.sh";
+    run "echo export MOJO_MODE=$mode >> /etc/profile.d/mojolicious.sh";
+    run
+        "echo export MOJO_LOG_LEVEL=$log_level >> /etc/profile.d/mojolicious.sh";
 };
 
 1;    # Magic true value required at end of module
