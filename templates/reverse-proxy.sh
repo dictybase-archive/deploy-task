@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# install perl modules for fcgi deployment
+# install perl modules for reverse proxy deployment
 # of web application.
+
 
 # gets the project folder as the param
 install_dependencies() {
@@ -12,8 +13,7 @@ install_dependencies() {
 after_install_dependencies() {
    echo "------> Installing plack and dependencies for fcgi deployment"
    cd $1
-   carton install Plack FCGI FCGI::ProcManager FCGI::Engine
-
+   carton install Plack Starman
 }
 
 before_install_dependencies() {
@@ -33,8 +33,7 @@ create_daemontools_runfile(){
   echo "source ${PERLBREW_ROOT}/etc/bashrc" >> $RUN_FILE
   echo "perlbrew use $LOCAL_LIB" >> $RUN_FILE
   echo  "export MOJO_MODE=production" >> $RUN_FILE
-  echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -E production -r -R template -s FCGI --nproc 4 -l /tmp/${PROJECT}.sock script/$PROJECT" >> $RUN_FILE
-
+  echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -p 9800 -E production -r -R template -s Starman --workers 5 script/${PROJECT}" >> $RUN_FILE
 }
 
 before_create_daemontools_runfile() {
@@ -60,3 +59,5 @@ after_create_daemontools_runfile() {
 		ln -s $APP_SERVICE /service/${PROJECT}
 	fi
 }
+
+
