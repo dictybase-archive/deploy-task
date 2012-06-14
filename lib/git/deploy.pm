@@ -45,7 +45,7 @@ task 'upload-config' => sub {
         $deploy_mode = 'production';
     }
 
-    my $remote_file = $remote_folder . '/' . $deploy_mode . '.yml';
+    my $remote_file = $remote_folder . '/' . $deploy_mode . '.yaml';
     upload $param->{config}, $remote_file;
 };
 
