@@ -33,8 +33,7 @@ create_daemontools_runfile(){
   echo "source ${PERLBREW_ROOT}/etc/bashrc" >> $RUN_FILE
   echo "perlbrew use $LOCAL_LIB" >> $RUN_FILE
   echo  "export MOJO_MODE=production" >> $RUN_FILE
-  echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -E production -r -R template -s FCGI --nproc 4 -l /tmp/${PROJECT}.sock script/$PROJECT" >> $RUN_FILE
-
+  echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -E production -r -R template -s FCGI --nproc 4 -l /tmp/${PROJECT}.socket script/$PROJECT" >> $RUN_FILE
 }
 
 before_create_daemontools_runfile() {
