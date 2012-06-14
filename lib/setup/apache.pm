@@ -26,6 +26,17 @@ task 'envvars' => sub {
     }
 };
 
+desc 'add mod_perl(--file==[]) code to apache configuration(perl.conf) file';
+task 'perl-code' => sub {
+    my ($param) = @_;
+    die "no input file (--file) is given\n" if not exists $param->{file};
+
+    my $content = do { local ( @ARGV, $/ ) = $param->{file}; <> };
+    my $fh = file_append('/etc/httpd/conf.d/perl.conf');
+    $fh->write($content);
+    $fh->close;
+};
+
 desc
     'upload a local(--file=[]) apache configuration file(--name=[vhost_site.conf])';
 task 'vhost' => sub {
