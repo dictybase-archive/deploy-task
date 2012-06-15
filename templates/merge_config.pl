@@ -5199,6 +5199,6 @@ my $sample_hash = LoadFile($ARGV[1]);
 my $merger = Hash::Merge->new('RIGHT_PRECEDENT');
 my $merged = $merger->merge($sample_hash, $config_hash);
 
-my $outfile = catfile(dirname $ARGV[1], $ARGV[2].'.yml' );
+my $outfile = catfile(dirname ($ARGV[1]), $ARGV[2].'.yml' );
 DumpFile($outfile, $merged);
 
