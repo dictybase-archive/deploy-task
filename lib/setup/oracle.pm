@@ -24,7 +24,9 @@ task 'tnsnames' => sub {
     $infh->close;
 
     if ($source =~ /ORACLE_HOME=(\S+)/) {
-    	my $outfh = file_write("$1/tnsnames.ora");
+    	my $outdir = "$1/network/admin";
+    	mkdir $outdir if !is_dir($outdir);
+    	my $outfh = file_write("$outdir/tnsnames.ora");
     	$outfh->write($content);
     	$outfh->close;
     }
