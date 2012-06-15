@@ -74,8 +74,8 @@ if [ -x deploy/$deployer ]; then
 
 	# handle dependencies using two hooks
 	before_install_dependencies $APP_DIR
-	after_install_dependencies $APP_DIR
 	install_dependencies $APP_DIR
+	after_install_dependencies $APP_DIR
 
 	# config file
 	copy_config $CONFIG_FOLDER $PROJECT $APP_DIR
