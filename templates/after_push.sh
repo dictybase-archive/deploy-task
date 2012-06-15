@@ -21,8 +21,8 @@ copy_config() {
 	local project=$2
 	local app_dir=$3
 
-	actual_config=${config_folder}/${project}/${MOJO_MODE}.yml
-	sample_config=${app_dir}/conf/sample.yml
+	actual_config=${config_folder}/${project}/${MOJO_MODE}.yaml
+	sample_config=${app_dir}/conf/sample.yaml
 
      
   if [ -f "$actual_config" ] && [ -f "$sample_config" ]; then
