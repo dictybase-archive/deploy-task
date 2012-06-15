@@ -28,7 +28,7 @@ task 'shared-folder' => sub {
 
     chgrp $group, $folder;
     run "chmod g+r,g+w,g+x,g+s $folder";
-    run "setfacl -k -b $folder && setfacl -d -m u::rwx,g::rwx,o::r-- $folder";
+    run "setfacl -k -b $folder && setfacl -d -m u::rwx,g::rwx,o::r-x $folder";
 
     if ( is_dir('/service') ) {    #it should be writable by deploy group
         chgrp $group, '/service';
