@@ -81,8 +81,8 @@ if [ -x deploy/$deployer ]; then
 	copy_config $CONFIG_FOLDER $PROJECT $APP_DIR
 
 	# handle daemontools setup using two hooks
-	before_create_deamontools_runfile  $PROJECT $RUN_FILE $LOCAL_LIB $APP_DIR
-	create_deamontools_runfile  $PROJECT $RUN_FILE $LOCAL_LIB $APP_DIR
+	before_create_daemontools_runfile  $PROJECT $RUN_FILE $LOCAL_LIB $APP_DIR
+	create_daemontools_runfile  $PROJECT $RUN_FILE $LOCAL_LIB $APP_DIR
 	after_create_daemontools_runfile  $PROJECT $RUN_FILE $LOCAL_LIB $APP_DIR
 
 else
