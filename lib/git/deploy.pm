@@ -125,7 +125,7 @@ task 'hooks' => sub {
 
     if ( exists $param->{'remote-config-folder'} ) {
         $content
-            =~ s{<%=\s?(enc-config-folder)\s?%>}{$param->{'remote-config-folder'}};
+            =~ s{<%=\s?(config-folder)\s?%>}{$param->{'remote-config-folder'}};
     }
 
     my $fh = file_write $remote_file;

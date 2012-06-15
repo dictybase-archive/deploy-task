@@ -3,7 +3,7 @@
 PERL=<%= perl-version %>
 DEPLOY_FOLDER=<%= deploy-to %>
 DEPLOY_MODE=<%= deploy-mode %>
-ENC_CONFIG_FOLDER=<%= enc-config-folder %>
+CONFIG_FOLDER=<%= config-folder %>
 GIT_WORK_TREE=$DEPLOY_FOLDER git checkout -f
 
 cd $DEPLOY_FOLDER;
@@ -16,6 +16,6 @@ if [ -d "deploy" ]; then
 	after=./deploy/after_push
 	if [ -x $after ]; then
 		## execute the after push deploy hook in the background
-		nohup $after $DEPLOY_MODE $DEPLOY_FOLDER $PERL $ENC_CONFIG_FOLDER >> $logfile 2>&1 & 
+		nohup $after $DEPLOY_MODE $DEPLOY_FOLDER $PERL $CONFIG_FOLDER >> $logfile 2>&1 & 
 	fi
 fi
