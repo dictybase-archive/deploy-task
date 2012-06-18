@@ -5183,22 +5183,35 @@ unshift @INC, sub {
 };
 
 } # END OF FATPACK CODE
+
 #!/usr/bin/env perl
 
 use strict;
 use YAML qw/LoadFile DumpFile/;
 use Hash::Merge;
-use File::Basename;
 use File::Spec::Functions;
+use Getopt::Long;
 
-die "needs three parameters!!!!\n" if scalar @ARGV != 3;
+my ( $actual_config, $mojo_mode, $sample_config );
+my $result = GetOptions(
+    'c=s' => \$actual_config,
+    's:s' => \$sample_config,
+    'm=s' => \$mojo_mode
+);
 
-my $config_hash = LoadFile($ARGV[0]);
-my $sample_hash = LoadFile($ARGV[1]);
+die "missing command line option(s)\n"     if !$result;
+die "application directory is not given\n" if !$ARGV[0];
 
-my $merger = Hash::Merge->new('RIGHT_PRECEDENT');
-my $merged = $merger->merge($sample_hash, $config_hash);
+my $config_hash = LoadFile($actual_config);
+my $outfile = catfile( $ARGV[0], 'conf', $mojo_mode . '.yml' );
 
-my $outfile = catfile(dirname ($ARGV[1]), $ARGV[2].'.yml' );
-DumpFile($outfile, $merged);
+if ($sample_config) {
+    my $sample_hash = LoadFile($sample_config);
+    my $merger      = Hash::Merge->new('RIGHT_PRECEDENT');
+    my $merged      = $merger->merge( $sample_hash, $config_hash );
+    DumpFile( $outfile, $merged );
+}
+else {
+    DumpFile( $outfile, $config_hash );
+}
 

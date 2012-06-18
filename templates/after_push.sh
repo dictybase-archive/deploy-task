@@ -25,11 +25,14 @@ copy_config() {
 	sample_config=${app_dir}/conf/sample.yaml
 
      
+  local running_perl=`which perl`
   if [ -f "$actual_config" ] && [ -f "$sample_config" ]; then
-        running_perl=`which perl`
-        $running_perl ${app_dir}/deploy/merge_config.pl $actual_config $sample_config $MOJO_MODE
+        $running_perl ${app_dir}/deploy/merge_config.pl -c $actual_config \
+                             -s $sample_config -m $MOJO_MODE $app_dir
+  elif [ -f "$actual_config" ]; then
+        $running_perl ${app_dir}/deploy/merge_config.pl -c $actual_config -m $MOJO_MODE $app_dir
   else
-        echo cannot find the config files $actual_config and $sample_config
+        echo cannot find the config files $actual_config
   fi
 }
 

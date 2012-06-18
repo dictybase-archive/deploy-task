@@ -16,7 +16,6 @@ task 'tnsnames' => sub {
 
     my $content = do { local ( @ARGV, $/ ) = $param->{file}; <> };
     $content =~ s{<%=\s?(sid)\s?%>}{$param->{sid}};
-    $content =~ s{<%=\s?(service)\s?%>}{$param->{sid}};
     $content =~ s{<%=\s?(orahost)\s?%>}{$param->{host}};
     $content =~ s{<%=\s?(service)\s?%>}{$param->{service}};
 

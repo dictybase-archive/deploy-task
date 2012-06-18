@@ -33,11 +33,18 @@ create_daemontools_runfile(){
   echo "source ${PERLBREW_ROOT}/etc/bashrc" >> $RUN_FILE
   echo "perlbrew use $LOCAL_LIB" >> $RUN_FILE
   echo  "export MOJO_MODE=$MOJO_MODE" >> $RUN_FILE
-  echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -E production -r -R template -s FCGI --nproc 4 -l /tmp/${PROJECT}.socket script/$PROJECT" >> $RUN_FILE
+  echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -E production  -R $APP_DIR/templates,$APP_DIR/lib -s FCGI --nproc 4 -l /tmp/${PROJECT}.socket script/$PROJECT" >> $RUN_FILE
 }
 
 before_create_daemontools_runfile() {
-   return
+  local PROJECT=$1
+  local RUN_FILE=$2
+  local LOCAL_LIB=$3
+  local APP_DIR=$4
+  local SERVICE=${APP_DIR}/service
+  local APP_SERVICE=${SERVICE}/${PROJECT}runner
+
+	! [ -d $APP_SERVICE ] && mkdir -p $APP_SERVICE
 }
 
 after_create_daemontools_runfile() {
@@ -50,9 +57,11 @@ after_create_daemontools_runfile() {
   local APP_SERVICE=${SERVICE}/${PROJECT}runner
   local RUN_FILE=${APP_SERVICE}/run
 
-	! [ -d $APP_SERVICE ] && mkdir -p $APP_SERVICE
-
-	if  [ ! -e $RUN_FILE ];then 
+	if  [ -e $RUN_FILE ];then 
+		cd $APP_DIR
+		chmod 1755 $APP_SERVICE
+		chmod 755 $RUN_FILE
+  else
 		cd $APP_DIR
 		chmod 1755 $APP_SERVICE
 		chmod 755 $RUN_FILE
