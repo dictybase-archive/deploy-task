@@ -7,10 +7,10 @@ use Rex::Commands::Upload;
 use Rex::Commands::File;
 
 desc
-    'upload a local(--file=[]) tnsnames template file with the provided (--host=) and (--sid=)';
+    'upload a local(--file=[]) tnsnames template file with the provided (--host=), (--sid=) and (--service=)';
 task 'tnsnames' => sub {
     my ($param) = @_;
-    for my $v (qw/host sid file/) {
+    for my $v (qw/host sid file service/) {
         die "no $v is given\n" if not exists $param->{$v};
     }
 
@@ -18,6 +18,7 @@ task 'tnsnames' => sub {
     $content =~ s{<%=\s?(sid)\s?%>}{$param->{sid}};
     $content =~ s{<%=\s?(service)\s?%>}{$param->{sid}};
     $content =~ s{<%=\s?(orahost)\s?%>}{$param->{host}};
+    $content =~ s{<%=\s?(service)\s?%>}{$param->{service}};
 
     my $infh = file_read('/etc/profile.d/oracle.sh');
     my $source = $infh->read_all;
