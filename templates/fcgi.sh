@@ -55,16 +55,15 @@ after_create_daemontools_runfile() {
   local APP_DIR=$4
   local SERVICE=${APP_DIR}/service
   local APP_SERVICE=${SERVICE}/${PROJECT}runner
-  local RUN_FILE=${APP_SERVICE}/run
+  local SVC=/service/${PROJECT}
 
-	if  [ -e $RUN_FILE ];then 
+	if  [ ! -e $RUN_FILE ];then 
 		cd $APP_DIR
 		chmod 1755 $APP_SERVICE
 		chmod 755 $RUN_FILE
-  else
-		cd $APP_DIR
-		chmod 1755 $APP_SERVICE
-		chmod 755 $RUN_FILE
-		ln -s $APP_SERVICE /service/${PROJECT}
+	fi
+
+	if [ ! -L $SVC ]; then
+		ln -s $APP_SERVICE $SVC
 	fi
 }
