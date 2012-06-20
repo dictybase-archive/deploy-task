@@ -50,21 +50,21 @@ The following tasks has to be run minimally
 
 ### Quick steps
 
-1. Install git hooks
+* Install git hooks
 
 ```rex -H <host> git:deploy:setup ```
 
-2. Create the local deployment scripts
+* Create the local deployment scripts
 
 ```rex 'git:deploy:init'```
 
-3. Upload configuration file if any(optional)
+* Upload configuration file if any(optional)
 
 ``` 
 rex -H <host> git:deploy:upload-config --config=<config_file> --remote-folder=<folder>
 ```
 
-4. Push to remote for deploying
+* Push to remote for deploying
 
 ```
 git add deploy; 
@@ -91,24 +91,24 @@ and the deployed folder will be
 
 The behaviour can be changed by passing parameters to the following options 
 
-__--git-path=[${HOME}/git/<project_name>]__   Top level remote folder where the git repository will be
+__--git-path=[${HOME}/git/<project_name>]__     Top level remote folder where the git repository will be
 pushed. The actual git folder will reside in a folder below that matches the project name.
 
-__--branch=[release]__  The git branch which will be deployed
+__--branch=[release]__                          The git branch which will be deployed
 
 __--deploy-to=[${HOME}/gitweb/<project_name>]__ The top level folder where the repository will be
 deployed.
 
-__--perl-version=[perl-5.10.1]__ The perl version(with perlbrew) that will be used for deployment
+__--perl-version=[perl-5.10.1]__                The perl version(with perlbrew) that will be used for deployment
 
-__--deploy-mode=[reverse-proxy|fcgi]__  The deploy mode script which will be invoked by
+__--deploy-mode=[reverse-proxy|fcgi]__          The deploy mode script which will be invoked by
 after_push script
 
-__--hook=[hooks/post-receive.template]__  The post receive hook(script) which will be
+__--hook=[hooks/post-receive.template]__        The post receive hook(script) which will be
 invoked after every git push
 
 
-__--remote-config-folder=[$HOME/config]__  The folder from where web application's
+__--remote-config-folder=[$HOME/config]__       The folder from where web application's
 configuration file will be copied. It is expected to contain sensitive information and
 therefore excluded from keeping it in the repository.
 
@@ -149,13 +149,13 @@ the **after_push** script runs the following steps ...
 
 * check for perlbrew, create local lib and install cpanm plus carton.
 * install dependencies using three functions 
-*__before_install_dependencies__ : generally empty, use it if neccessary
-*__install_dependencies__: invoke ```carton install```
-*__after_install_dependencies__: install plack and server bindings. For fcgi it uses
+* __before_install_dependencies__ : generally empty, use it if neccessary
+* __install_dependencies__: invoke ```carton install```
+* __after_install_dependencies__: install plack and server bindings. For fcgi it uses
    FCGI::ProcManager and for reverse-proxy it uses Starman
-*__before_create_daemontools_runfile__: creates the service directory
-*__create_daemontools_runfile__:
-*__after_create_daemontools_runfile__: symlinks to the system /service directory
+* __before_create_daemontools_runfile__: creates the service directory
+* __create_daemontools_runfile__:
+* __after_create_daemontools_runfile__: symlinks to the system /service directory
 * copy the config file: uses the **remote-config-folder** parameter to look for config
   file. Uses merge_config.pl script for this.
 
