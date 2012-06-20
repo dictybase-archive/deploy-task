@@ -52,11 +52,15 @@ The following tasks has to be run minimally
 
 * Install git hooks
 
-```rex -H <host> git:deploy:setup ```
+```
+rex -H <host> git:deploy:setup 
+```
 
 * Create the local deployment scripts
 
-```rex 'git:deploy:init'```
+```
+rex 'git:deploy:init'
+```
 
 * Upload configuration file if any(optional)
 
@@ -77,7 +81,9 @@ git push deploy
 
 Install the git hooks
 
-```rex -H <host> git:deploy:setup```
+```
+rex -H <host> git:deploy:setup
+```
 
 It will create a remote git repository and install the default post recieve hook from
 hooks/post-receive.template from inside __deploy__ submodule. By default, for example in case
@@ -91,26 +97,31 @@ and the deployed folder will be
 
 The behaviour can be changed by passing parameters to the following options 
 
-__--git-path=[${HOME}/git/<project_name>]__     Top level remote folder where the git repository will be
+__--git-path=[${HOME}/git/<project_name>]__     
+Top level remote folder where the git repository will be
 pushed. The actual git folder will reside in a folder below that matches the project name.
 
-__--branch=[release]__                          The git branch which will be deployed
+__--branch=[release]__                          
+The git branch which will be deployed
 
-__--deploy-to=[${HOME}/gitweb/<project_name>]__ The top level folder where the repository will be
-deployed.
+__--deploy-to=[${HOME}/gitweb/<project_name>]__ 
+The top level folder where the repository will be deployed.
 
-__--perl-version=[perl-5.10.1]__                The perl version(with perlbrew) that will be used for deployment
+__--perl-version=[perl-5.10.1]__                
+The perl version(with perlbrew) that will be used for deployment
 
-__--deploy-mode=[reverse-proxy|fcgi]__          The deploy mode script which will be invoked by
-after_push script
+__--deploy-mode=[reverse-proxy|fcgi]__          
+The deploy mode script which will be invoked by ```after_push``` script
 
-__--hook=[hooks/post-receive.template]__        The post receive hook(script) which will be
-invoked after every git push
+__--hook=[hooks/post-receive.template]__        
+The post receive hook(script) which will be invoked after every git push
 
 
-__--remote-config-folder=[$HOME/config]__       The folder from where web application's
-configuration file will be copied. It is expected to contain sensitive information and
+__--remote-config-folder=[$HOME/config]__       
+The folder from where web application's configuration file will be copied. 
+It is expected to contain sensitive information and
 therefore excluded from keeping it in the repository.
+
 
 Example
 
