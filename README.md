@@ -1,4 +1,3 @@
-
 ## Getting started
 
 Add a makefile or Build.PL declaring dependencies for your mojolicious web application
@@ -59,13 +58,13 @@ The following tasks has to be run minimally
 
 ```rex 'git:deploy:init'```
 
-2a. Upload configuration file if any(optional)
+3. Upload configuration file if any(optional)
 
 ``` 
 rex -H <host> git:deploy:upload-config --config=<config_file> --remote-folder=<folder>
 ```
 
-3. Push to remote for deploying
+4. Push to remote for deploying
 
 ```
 git add deploy; 
