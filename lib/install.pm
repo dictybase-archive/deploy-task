@@ -11,7 +11,7 @@ task 'dicty-pack' => sub {
     update_package_db;
     install package => [
         qw/gcc curl wget make man gd gd-devel db4 db4-devel git vim-enhanced httpd
-            mod_fastcgi mod_perl htop acl upstart daemontools bc/
+            mod_fastcgi mod_perl htop acl upstart daemontools bc libxml2-devel expat-devel/
     ];
 };
 
