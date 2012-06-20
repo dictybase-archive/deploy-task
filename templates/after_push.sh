@@ -13,18 +13,22 @@ CONFIG_FOLDER=$4
 
 
 copy_config() {
-	if [ -z "$MOJO_MODE" ]; then
-	    MOJO_MODE='production'
-	fi
 
 	local config_folder=$1
 	local project=$2
 	local app_dir=$3
 
+  if [ ! -e $config_folder ]; then
+     return
+  fi
+
+	if [ -z "$MOJO_MODE" ]; then
+	    MOJO_MODE='production'
+	fi
+
 	actual_config=${config_folder}/${project}/${MOJO_MODE}.yaml
 	sample_config=${app_dir}/conf/sample.yaml
 
-     
   local running_perl=`which perl`
   if [ -f "$actual_config" ] && [ -f "$sample_config" ]; then
         $running_perl ${app_dir}/deploy/merge_config.pl -c $actual_config \
