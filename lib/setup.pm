@@ -5,6 +5,8 @@ use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Upload;
 use Rex::Commands::File;
+use Rex::Config;
+use Rex::TaskList;
 
 desc 'Add daemontools to run via upstart';
 task 'daemontools', sub {
@@ -55,7 +57,8 @@ task 'oracle-client' => sub {
     upload $_, $tmpdir for @rpms;
 
     # install
-    sudo "rpm -i $tmpdir/*basic*.rpm && rpm -i $tmpdir/*sqlplus*.rpm && rpm -i $tmpdir/*devel*.rpm";
+    sudo
+        "rpm -i $tmpdir/*basic*.rpm && rpm -i $tmpdir/*sqlplus*.rpm && rpm -i $tmpdir/*devel*.rpm";
 
     #extract value of lib folder
     my $lib = run "dirname `(rpm -qlp $tmpdir/*basic*.rpm | grep libclntsh)`";
@@ -77,6 +80,51 @@ task 'global-mojo' => sub {
     run "echo export MOJO_MODE=$mode >> /etc/profile.d/mojolicious.sh";
     run
         "echo export MOJO_LOG_LEVEL=$log_level >> /etc/profile.d/mojolicious.sh";
+};
+
+desc
+    'set up a remote box for dictybase deployment by running a bunch of tasks';
+task 'dicty-box' => sub {
+    do_task 'add:repos';
+    Rex::Config->register_config_handler(
+        sudo => sub {
+            my ($param) = @_;
+            Rex::TaskList->run( 'add:sudoers',
+                params => { file => $param->{file} } );
+        }
+     );
+    Rex::Config->register_config_handler(
+        group => sub {
+            my ($param) = @_;
+            Rex::TaskList->run( 'add:groups',
+                params => { name => $param->{name} } );
+        }
+     );
+    Rex::Config->register_config_handler(
+        user => sub {
+            my ($param) = @_;
+            Rex::TaskList->run( 'add:user',
+                params => { map { $_ => $param->{$_ }} qw/user pass groups/} );
+        }
+     );
+    Rex::Config->register_config_handler(
+        shared => sub {
+            my ($param) = @_;
+            Rex::TaskList->run( 'setup:shared-folder',
+                params => { map { $_ => $param->{$_ }} qw/group folder/} );
+        }
+     );
+    Rex::Config->register_config_handler(
+        oracle => sub {
+            my ($param) = @_;
+            Rex::TaskList->run( 'setup:oracle-client',
+                params => {rpm => $param->{rpm} } );
+            Rex::TaskList->run( 'setup:oracle:tnsnames',
+                params =>  { map { $_ => $param->{$_ }} qw/file host sid service/} );
+        }
+     );
+
+    do_task 'setup:daemontools';
 };
 
 1;    # Magic true value required at end of module
