@@ -20,13 +20,29 @@ task 'daemontools', sub {
 };
 
 desc
-    'setup shared folder (--group=deploy and --folder=/dictybase options) for deployment and common web developmental tasks';
+    'setup shared folder (--group=deploy and --folder=/dictybase --device=[] options) for deployment and common web developmental tasks';
 task 'shared-folder' => sub {
     my ($param) = @_;
 
+	die "no device is given\n" if not defined $param->{device};
+
+	my $device = $param->{device};
     my $group  = $param->{group}  || 'deploy';
     my $folder = $param->{folder} || '/dictybase';
-    warn "the shared folder $folder has to be remounted with *acl* support\n";
+
+    my $fh = file_read '/etc/fstab';
+    my $content = $fh->read_all;
+    $fh->close;
+
+    if ($content !~ /$folder(.+)?acl/) {
+    	my $fh_append = file_append '/etc/fstab';
+    	$fh_append->write(sprintf "%s  %s  ext4  defaults,acl  1 2", $device, $folder);
+    	$fh_append->close;
+    	run "mount $folder";
+    }
+    else {
+    	run "mount $folder -o remount";
+    }
 
     chgrp $group, $folder;
     run "chmod g+r,g+w,g+x,g+s $folder";
@@ -89,7 +105,7 @@ task 'dicty-perl' => sub {
             my ($param) = @_;
             Rex::TaskList->run(
                 'perlbrew:install',
-                param => {
+                params => {
                     'install-root' => $param->{root},
                     system         => 1
                 }
@@ -98,9 +114,9 @@ task 'dicty-perl' => sub {
             do_task 'perlbrew:install-cpanm';
 
             Rex::TaskList->run( 'perl:install-notest',
-                param => { version => $param->{ perl-version } } );
+                params => { version => $param->{perl} } );
             Rex::TaskList->run( 'perlbrew-switch',
-                param => { version => $param->{ perl-version } } );
+                params => { version => $param->{perl} } );
 
             do_task 'perl:install-toolchain';
         }
@@ -141,7 +157,7 @@ task 'dicty-box' => sub {
         shared => sub {
             my ($param) = @_;
             Rex::TaskList->run( 'setup:shared-folder',
-                params => { map { $_ => $param->{$_} } qw/group folder/ } );
+                params => { map { $_ => $param->{$_} } qw/group folder device/ } );
         }
     );
     Rex::Config->register_config_handler(
