@@ -30,11 +30,6 @@ desc 'add extra 3rd party repositories(elrepo,rpmforge and atomicorp)';
 task 'repos' => sub {
     needs add qw/elrepo rpmforge atomicorp/;
 };
-before 'add:repos' => sub {
-    if ( !is_redhat ) {
-        die "your Os is not supported\n";
-    }
-};
 
 desc
     'add ELRepo repository for RHEL 6.0 or any of its derivative(CentOs etc...) system';
