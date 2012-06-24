@@ -18,7 +18,8 @@ Cmnd_Alias DELEGATING = /usr/sbin/visudo, /bin/chown, /bin/chmod, /bin/chgrp,  \
                        /usr/bin/setfacl, /usr/bin/getfacl,  /usr/bin/passwd 
 
 ## Processes
-Cmnd_Alias PROCESSES = /bin/nice, /bin/kill, /usr/bin/kill, /usr/bin/killall
+Cmnd_Alias PROCESSES = /bin/nice, /bin/kill, /usr/bin/kill, /usr/bin/killall,  \
+                       /usr/bin/svc
 
 ## Drivers
 Cmnd_Alias DRIVERS = /sbin/modprobe
