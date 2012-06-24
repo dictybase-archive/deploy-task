@@ -6,7 +6,7 @@ use Rex::Commands::Fs;
 use Rex::Commands::Upload;
 use Rex::Commands::File;
 use Rex::Config;
-use Rex::TaskList;
+use Rex::Transaction;
 
 desc 'Add daemontools to run via upstart';
 task 'daemontools', sub {
@@ -24,24 +24,34 @@ desc
 task 'shared-folder' => sub {
     my ($param) = @_;
 
-	die "no device is given\n" if not defined $param->{device};
+    die "no device is given\n" if not defined $param->{device};
 
-	my $device = $param->{device};
-    my $group  = $param->{group}  || 'deploy';
+    my $device = $param->{device};
+    my $group  = $param->{group} || 'deploy';
     my $folder = $param->{folder} || '/dictybase';
 
-    my $fh = file_read '/etc/fstab';
+    if ( !is_dir($folder) ) {
+        on_rollback {
+            die "unable to create remote folder $folder\n";
+        };
+        transaction {
+            mkdir $folder;
+        };
+    }
+
+    my $fh      = file_read '/etc/fstab';
     my $content = $fh->read_all;
     $fh->close;
 
-    if ($content !~ /$folder(.+)?acl/) {
-    	my $fh_append = file_append '/etc/fstab';
-    	$fh_append->write(sprintf "%s  %s  ext4  defaults,acl  1 2", $device, $folder);
-    	$fh_append->close;
-    	run "mount $folder";
+    if ( $content !~ /$folder(.+)?acl/ ) {
+        my $fh_append = file_append '/etc/fstab';
+        $fh_append->write( sprintf "%s  %s  ext4  defaults,acl  1 2",
+            $device, $folder );
+        $fh_append->close;
+        run "mount $folder";
     }
     else {
-    	run "mount $folder -o remount";
+        run "mount $folder -o remount";
     }
 
     chgrp $group, $folder;
@@ -97,7 +107,6 @@ task 'global-mojo' => sub {
     run
         "echo export MOJO_LOG_LEVEL=$log_level >> /etc/profile.d/mojolicious.sh";
 };
-
 
 1;    # Magic true value required at end of module
 
