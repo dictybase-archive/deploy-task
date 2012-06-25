@@ -29,8 +29,9 @@ task 'perl' => sub {
 
 };
 
-desc 'setup default perl and install toolchain';
+desc 'setup default perl and install toolchain for dictybase development';
 task 'perl-toolchain' => sub {
+	my ($param) = @_;
     Rex::TaskList->run( 'perlbrew:switch',
         params => { version => $param->{perl} } );
     do_task 'perl:install-toolchain';

@@ -8,3 +8,4 @@ require perlbrew;
 require perlbrew::lib;
 require setup::apache;
 require setup::oracle;
+require setup::dicty;
