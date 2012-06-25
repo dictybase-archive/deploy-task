@@ -1,3 +1,5 @@
 Rexfile
 !sample
 secure.conf.d
+*.log
+*.swp
