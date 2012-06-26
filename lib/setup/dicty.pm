@@ -17,11 +17,11 @@ task 'perl' => sub {
                 'perlbrew:install',
                 params => {
                     'install-root' => $param->{root},
-                    system         => 1
+                    'system'         => 1
                 }
             );
 
-            do_task 'perlbrew:install-cpanm';
+            do_task 'perlbrew:lib:install-cpanm';
 
             Rex::TaskList->run( 'perl:install-notest',
                 params => { version => $param->{perl} } );
