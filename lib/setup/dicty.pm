@@ -8,7 +8,7 @@ use Rex::Config;
 use Rex::TaskList;
 use Rex::Interface::Exec::Sudo;
 
-desc 'setup perl environment for dictybase deployment';
+desc 'install and setup perl environment for dictybase deployment';
 task 'perl' => sub {
     Rex::Config->register_config_handler(
         perlbrew => sub {
