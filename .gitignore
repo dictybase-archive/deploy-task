@@ -3,3 +3,4 @@ Rexfile
 secure.conf.d
 *.log
 *.swp
+*.lock

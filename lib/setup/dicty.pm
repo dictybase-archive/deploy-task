@@ -6,6 +6,7 @@ use Rex::Commands::Fs;
 use Rex::Commands::File;
 use Rex::Config;
 use Rex::TaskList;
+use Rex::Interface::Exec::Sudo;
 
 desc 'setup perl environment for dictybase deployment';
 task 'perl' => sub {
@@ -51,6 +52,7 @@ task 'box' => sub {
                 params => { file => $param->{file} } );
         }
     );
+
     Rex::Config->register_config_handler(
         group => sub {
             my ($param) = @_;
@@ -66,6 +68,7 @@ task 'box' => sub {
             );
         }
     );
+
     Rex::Config->register_config_handler(
         shared => sub {
             my ($param) = @_;

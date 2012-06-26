@@ -49,10 +49,14 @@ task 'vhost' => sub {
     $fh->close;
 };
 
-desc 'start apache2 and make sure it gets started at boot';
+desc 'make sure apache2 gets started at boot';
 task 'startup' => sub {
-    service 'apache2' => 'start';
-    service 'apache2' => 'ensure', 'started';
+	run 'chkconfig --level 2345 httpd on';
+};
+
+desc 'start apache2';
+task 'start' => sub {
+	run 'service httpd start';
 };
 
 1;
