@@ -65,9 +65,8 @@ task 'install' => sub {
 
 desc 'check if perlbrew is installed';
 task 'check' => sub {
-    if ( run 'echo ${PERLBREW_ROOT}' ) {
-    }
-    else {
+	run '[ -z "$PERLBREW_ROOT" ]';
+    if ( !$? ) {
         warn "perlbrew is not installed or not being set properly\n";
         die "install perlbrew using the install-perlbrew task\n";
     }
@@ -93,11 +92,11 @@ task 'available' => sub {
 
 desc 'make this the default perl (--version=<> mandatory)';
 task 'switch' => sub {
-    needs perlbrew 'check';
-
     my ($param) = @_;
-    my $version = $param->{'version'}
-        or die "pass a version argument with --perl-version=\n";
+    needs perlbrew 'check';
+    die "pass a version argument with --version=\n"
+        if not exists $param->{version};
+    my $version = $param->{version};
     say run "\$PERLBREW_ROOT/bin/perlbrew switch $version";
 };
 
