@@ -4,6 +4,7 @@ use strict;
 
 use Rex -base;
 use Rex::Commands::Run;
+use Rex::Commands::File;
 
 # Other modules:
 
@@ -42,10 +43,14 @@ task 'install' => sub {
     my $root = $param->{'install-root'} || '~/perl5/perlbrew';
 
     if ( exists $param->{system} ) {
-        sudo "echo export PERLBREW_ROOT=$root >> /etc/profile.d/perlbrew.sh";
-        sudo
-            "echo source $root/etc/bashrc >> ~/etc/profile.d/perlbrew.sh";
-        sudo "echo export PERL_CPANM_HOME=$root/.cpanm >> /etc/profile.d/cpanm.sh";
+        sudo sub {
+            my $fh = file_write('/etc/profile.d/perlbrew.sh');
+            $fh->write("export PERLBREW_ROOT=$root\n");
+            $fh->write("source \${PERLBREW_ROOT}/etc/bashrc\n");
+            $fh->close;
+            run
+                "echo export PERL_CPANM_HOME=$root/.cpanm >> /etc/profile.d/cpanm.sh";
+        };
     }
     else {
         run "echo export PERLBREW_ROOT=$root >> ~/.bashrc";
