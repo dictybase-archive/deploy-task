@@ -4,6 +4,8 @@ use strict;
 use Rex -base;
 use Rex::Commands::Run;
 use Rex::Commands::Tail;
+use Rex::Commands::Fs;
+use Rex::Commands::File;
 
 # Other modules:
 
@@ -52,7 +54,15 @@ task 'install-status' => sub {
 desc 'install perl modules(toolchain) for managing dependencies'; 
 task 'install-toolchain' => sub {
     needs perlbrew 'check';
-	say run 'nohup $PERLBREW_ROOT/bin/cpanm -n Devel::Loaded App::cpanoutdated App::pmuninstall Carton </dev/null > cpanm.log 2>&1 &';
+    my $tmpfile = run 'mktemp';
+    chmod 744,  $tmpfile; 
+    my $fh = file_write($tmpfile);
+    $fh->write("#!/bin/sh\n"); 
+    $fh->write("source \${PERLBREW_ROOT}/etc/bashrc\n");
+    $fh->write("\${PERLBREW_ROOT}/bin/cpanm -n Devel::Loaded App::cpanoutdated App::pmuninstall Carton\n");
+    $fh->write("trap \'rm -f $tmpfile\' EXIT\n");
+    $fh->close;
+	say run "nohup $tmpfile > cpanm.log 2>&1 &";
 };
 
 1;    # Magic true value required at end of module
