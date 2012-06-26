@@ -17,7 +17,7 @@ task 'perl' => sub {
                 'perlbrew:install',
                 params => {
                     'install-root' => $param->{root},
-                    'system'         => 1
+                    'system'       => 1
                 }
             );
 
@@ -32,10 +32,14 @@ task 'perl' => sub {
 
 desc 'setup default perl and install toolchain for dictybase development';
 task 'perl-toolchain' => sub {
-	my ($param) = @_;
-    Rex::TaskList->run( 'perlbrew:switch',
-        params => { version => $param->{perl} } );
-    do_task 'perl:install-toolchain';
+    Rex::Config->register_config_handler(
+        perlbrew => sub {
+            my ($param) = @_;    	
+            Rex::TaskList->run( 'perlbrew:switch',
+                params => { version => $param->{perl} } );
+            do_task 'perl:install-toolchain';
+        }
+    );
 };
 
 desc
