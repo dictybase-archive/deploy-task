@@ -7,6 +7,7 @@ use Rex::Commands::Upload;
 use Rex::Commands::File;
 use Rex::Config;
 use Rex::Transaction;
+use LocalTask;
 
 desc 'Add daemontools to run via upstart';
 task 'daemontools', sub {
@@ -70,20 +71,14 @@ task 'oracle-client' => sub {
     my ($param) = @_;
     die "no rpm folder(--rpm=<folder>) given\n" if not exists $param->{rpm};
 
-    my @rpms;
-    LOCAL {
-        @rpms = glob("$param->{rpm}/oracle-instantclient-*.rpm");
-        die
-            "did not get any oracle instantclient rpm(s) from $param->{rpm} !!!!\n"
-            if scalar @rpms == 0;
-    };
+    my @rpms = LocalTask->rpms($param->{rpm});
 
     # upload the rpms
     my $tmpdir = run 'mktemp -d';
     upload $_, $tmpdir for @rpms;
 
     # install
-    sudo
+    run 
         "rpm -i $tmpdir/*basic*.rpm && rpm -i $tmpdir/*sqlplus*.rpm && rpm -i $tmpdir/*devel*.rpm";
 
     #extract value of lib folder
@@ -91,9 +86,9 @@ task 'oracle-client' => sub {
     my $bin = run
         "dirname `(rpm -qlp $tmpdir/*sqlplus*.rpm | grep -E 'sqlplus\$')`";
 
-    sudo "echo export ORACLE_HOME=$lib >> /etc/profile.d/oracle.sh";
-    sudo "echo \' export PATH=\$PATH:$bin \' >> /etc/profile.d/oracle.sh";
-    sudo "echo $lib >> /etc/ld.so.conf.d/oracle.conf";
+    run "echo export ORACLE_HOME=$lib >> /etc/profile.d/oracle.sh";
+    run "echo \' export PATH=\$PATH:$bin \' >> /etc/profile.d/oracle.sh";
+    run "echo $lib >> /etc/ld.so.conf.d/oracle.conf";
 };
 
 desc
