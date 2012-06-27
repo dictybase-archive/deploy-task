@@ -20,6 +20,7 @@ before_install_dependencies() {
   return
 }
 
+
 create_daemontools_runfile(){
 
   local PROJECT=$1
@@ -27,14 +28,19 @@ create_daemontools_runfile(){
   local LOCAL_LIB=$3
   local APP_DIR=$4
 
-  echo -e "#!/bin/sh\nexec 2>1&\n" > $RUN_FILE
-  echo "export HOME=$HOME" >> $RUN_FILE
-  echo -e "cd $APP_DIR\n" >> $RUN_FILE
-  echo "source ${PERLBREW_ROOT}/etc/bashrc" >> $RUN_FILE
-  echo "perlbrew use $LOCAL_LIB" >> $RUN_FILE
-  echo  "export MOJO_MODE=$MOJO_MODE" >> $RUN_FILE
-  echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -E production  -R $APP_DIR/templates,$APP_DIR/lib -s FCGI --nproc 4 -l /tmp/${PROJECT}.socket script/$PROJECT" >> $RUN_FILE
+  if [ ! -e $RUN_FILE ]; then
+
+    echo -e "#!/bin/sh\nexec 2>1&\n" > $RUN_FILE
+    echo "export HOME=$HOME" >> $RUN_FILE
+    echo -e "cd $APP_DIR\n" >> $RUN_FILE
+    echo "source ${PERLBREW_ROOT}/etc/bashrc" >> $RUN_FILE
+    echo "perlbrew use $LOCAL_LIB" >> $RUN_FILE
+    echo  "export MOJO_MODE=$MOJO_MODE" >> $RUN_FILE
+    echo  "exec setuidgid $USER carton exec -Ilib  -- plackup -E production  -R $APP_DIR/templates,$APP_DIR/lib -s FCGI --nproc 1 -l /tmp/${PROJECT}.socket script/$PROJECT" >> $RUN_FILE
+		chmod 755 $RUN_FILE
+  fi
 }
+
 
 before_create_daemontools_runfile() {
   local PROJECT=$1
@@ -56,12 +62,6 @@ after_create_daemontools_runfile() {
   local SERVICE=${APP_DIR}/service
   local APP_SERVICE=${SERVICE}/${PROJECT}runner
   local SVC=/service/${PROJECT}
-
-	if  [ ! -e $RUN_FILE ];then 
-		cd $APP_DIR
-		chmod 1755 $APP_SERVICE
-		chmod 755 $RUN_FILE
-	fi
 
 	if [ ! -L $SVC ]; then
 		ln -s $APP_SERVICE $SVC
