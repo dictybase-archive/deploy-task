@@ -82,6 +82,15 @@ task 'box' => sub {
                     { map { $_ => $param->{$_} } qw/group folder device/ } );
         }
     );
+
+    Rex::Config->register_config_handler(
+        'shared-remount' => sub {
+            my ($param) = @_;
+            Rex::TaskList->run( 'setup:shared-folder-remount',
+                params =>
+                    { map { $_ => $param->{$_} } qw/group folder base/ } );
+        }
+    );
     Rex::Config->register_config_handler(
         oracle => sub {
             my ($param) = @_;

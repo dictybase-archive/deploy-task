@@ -20,6 +20,37 @@ task 'daemontools', sub {
     run 'initctl reload-configuration &&  initctl start svscan';
 };
 
+
+desc
+    'setup shared folder (--group=[deploy], --folder=[/home/dictybase] --base-folder=[$HOME] options) for shared device';
+task 'shared-folder-remount' => sub {
+    my ($param) = @_;
+
+    my $base = $param->{'base-folder'} || '$HOME';
+    my $folder = $param->{folder} || $base.'/dictybase';
+    my $group  = $param->{group} || 'deploy';
+
+    if ( !is_dir($folder) ) {
+        on_rollback {
+            die "unable to create remote folder $folder\n";
+        };
+        transaction {
+            mkdir $folder;
+        };
+    }
+
+    run "mount $base -o remount,acl";
+
+    chgrp $group, $folder;
+    run "chmod g+r,g+w,g+x,g+s $folder";
+    run "setfacl -k -b $folder && setfacl -d -m u::rwx,g::rwx,o::r-x $folder";
+
+    if ( is_dir('/service') ) {    #it should be writable by deploy group
+        chgrp $group, '/service';
+        chmod 'g+w', '/service';
+    }
+};
+
 desc
     'setup shared folder (--group=deploy and --folder=/dictybase --device=[] options) for deployment and common web developmental tasks';
 task 'shared-folder' => sub {
