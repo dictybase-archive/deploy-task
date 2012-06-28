@@ -66,5 +66,10 @@ desc 'start apache2';
 task 'start' => sub {
 	run 'service httpd start';
 };
+desc 'restart apache2';
+task 'restart' => sub {
+	run 'service httpd restart';
+};
+
 
 1;
