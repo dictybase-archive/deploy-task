@@ -63,11 +63,18 @@ task 'sudoers' => sub {
     die "pass a file name using (--file) argument\n"
         if not exists $param->{file};
     die "given file $param->{file} do not exist\n" if !-e $param->{file};
-    my $name = basename $param->{file};
-    my $fh   = file_write("/etc/sudoers.d/$name");
-    my $text = do { local ( @ARGV, $/ ) = $param->{file}; <> };
-    $fh->write($text);
-    $fh->close;
+
+    if ( is_dir('/etc/sudoers.d') ) {
+        my $name = basename $param->{file};
+        my $fh   = file_write("/etc/sudoers.d/$name");
+        my $text = do { local ( @ARGV, $/ ) = $param->{file}; <> };
+        $fh->write($text);
+        $fh->close;
+    }
+    else {
+        warn "/etc/sudoers.d do not exist\n";
+        warn "or disable requirestty option in /etc/sudoers\n";
+    }
 };
 
 desc 'add new groups(--name=group1:group2:...) [only in remote linux system]';
