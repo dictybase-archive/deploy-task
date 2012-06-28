@@ -116,6 +116,7 @@ task 'box' => sub {
                 params => { file => $param->{perl}->{file} } );
         }
     );
+    do_task 'setup:apache:fastcgi-fix';
     do_task 'setup:apache:startup';
 };
 

@@ -20,7 +20,7 @@ task 'envvars' => sub {
         my $file = '/etc/httpd/conf.d/perl.conf';
         if ( is_file($file) ) {
             my $fh = file_append($file);
-            $fh->write("PerlSetEnv WEBAPPS_DIR $1");
+            $fh->write("PerlSetEnv WEBAPPS_DIR $1\n");
             $fh->close;
         }
     }
@@ -47,6 +47,14 @@ task 'vhost' => sub {
     my $fh = file_write("/etc/httpd/conf.d/$name");
     $fh->write($content);
     $fh->close;
+};
+
+desc 'remove fastcgi wrapper line from fastcgi apache configuration file';
+task 'fastcgi-fix' => sub {
+    my $file = '/etc/httpd/conf.d/fastcgi.conf';	
+	if (is_file($file)) {
+		delete_lines_matching $file,  matching => qr{FastCgiWrapper On};
+	}
 };
 
 desc 'make sure apache2 gets started at boot';
