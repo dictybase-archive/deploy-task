@@ -6,8 +6,6 @@ use Rex::Commands::Gather;
 use Rex::Commands::File;
 use Rex::Commands::Fs;
 use Rex::Commands::User;
-use Rex::Interface::Fs;
-use Rex::Interface::File;
 use File::Basename;
 use Try::Tiny;
 
@@ -66,20 +64,10 @@ task 'sudoers' => sub {
         if not exists $param->{file};
     die "given file $param->{file} do not exist\n" if !-e $param->{file};
     my $name = basename $param->{file};
-    if ( is_dir('/etc/sudoers.d') ) {
-        try {
-            my $fh = file_write("/etc/sudoers.d/$name");
-            my $text = do { local ( @ARGV, $/ ) = $param->{file}; <> };
-            $fh->write($text);
-            $fh->close;
-        }
-        catch {
-            die "error in writing:$_\n";
-        };
-    }
-    else {
-        warn "/etc/sudoers.d folder do not exist in remote server!!!\n";
-    }
+    my $fh   = file_write("/etc/sudoers.d/$name");
+    my $text = do { local ( @ARGV, $/ ) = $param->{file}; <> };
+    $fh->write($text);
+    $fh->close;
 };
 
 desc 'add new groups(--name=group1:group2:...) [only in remote linux system]';

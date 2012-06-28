@@ -20,15 +20,14 @@ task 'daemontools', sub {
     run 'initctl reload-configuration &&  initctl start svscan';
 };
 
-
 desc
     'setup shared folder (--group=[deploy], --folder=[/home/dictybase] --base-folder=[$HOME] options) for shared device';
 task 'shared-folder-remount' => sub {
     my ($param) = @_;
 
-    my $base = $param->{'base-folder'} || '$HOME';
-    my $folder = $param->{folder} || $base.'/dictybase';
-    my $group  = $param->{group} || 'deploy';
+    my $base   = $param->{'base-folder'} || '/home';
+    my $folder = $param->{folder}        || $base . '/dictybase';
+    my $group  = $param->{group}         || 'deploy';
 
     if ( !is_dir($folder) ) {
         on_rollback {
@@ -102,14 +101,14 @@ task 'oracle-client' => sub {
     my ($param) = @_;
     die "no rpm folder(--rpm=<folder>) given\n" if not exists $param->{rpm};
 
-    my @rpms = LocalTask->rpms($param->{rpm});
+    my @rpms = LocalTask->rpms( $param->{rpm} );
 
     # upload the rpms
     my $tmpdir = run 'mktemp -d';
     upload $_, $tmpdir for @rpms;
 
     # install
-    run 
+    run
         "rpm -i $tmpdir/*basic*.rpm && rpm -i $tmpdir/*sqlplus*.rpm && rpm -i $tmpdir/*devel*.rpm";
 
     #extract value of lib folder
@@ -136,13 +135,25 @@ task 'global-mojo' => sub {
 
 desc 'copy ssh public key(--key=[]) to remote host for passwordless access';
 task 'ssh-key' => sub {
-	my ($param) = @_;
-	die "no key given\n" if $param->{key};
+    my ($param) = @_;
+    die "no key given\n" if not exists $param->{key};
 
-	my $content = do { local ($ARGV[0],  $/) = $param->{key};  <>};
-	my $fh = file_append('$HOME/.ssh/authorized_key');
-	$fh->write($content);
-	$fh->close;
+    my $content = do { local ( $ARGV[0], $/ ) = $param->{key}; <> };
+    my $home   = run 'echo $HOME';
+    my $sshdir = "$home/.ssh";
+    if ( !is_dir($sshdir) ) {
+        run "mkdir -p $sshdir";
+    }
+    my $keyfile = "$sshdir/authorized_keys";
+    my $fh;
+    if ( is_file($keyfile) ) {
+        $fh = file_append($keyfile);
+    }
+    else {
+        $fh = file_write($keyfile);
+    }
+    $fh->write($content);
+    $fh->close;
 };
 
 1;    # Magic true value required at end of module

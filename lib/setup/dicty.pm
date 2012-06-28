@@ -45,7 +45,7 @@ task 'perl-toolchain' => sub {
 desc
     'set up a remote box for dictybase deployment by running a bunch of tasks';
 task 'box' => sub {
-
+    do_task 'install:perl';
     Rex::Config->register_config_handler(
         sudo => sub {
             my ($param) = @_;
@@ -53,10 +53,6 @@ task 'box' => sub {
                 params => { file => $param->{file} } );
         }
     );
-
-    do_task 'add:repos';
-    do_task 'install:dicty-pack';
-    do_task 'setup:daemontools';
 
     Rex::Config->register_config_handler(
         group => sub {
@@ -73,6 +69,11 @@ task 'box' => sub {
             );
         }
     );
+
+    do_task 'add:repos';
+    do_task 'install:dicty-pack';
+    do_task 'setup:daemontools';
+
 
     Rex::Config->register_config_handler(
         shared => sub {
