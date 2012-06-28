@@ -103,5 +103,16 @@ task 'global-mojo' => sub {
         "echo export MOJO_LOG_LEVEL=$log_level >> /etc/profile.d/mojolicious.sh";
 };
 
+desc 'copy ssh public key(--key=[]) to remote host for passwordless access';
+task 'ssh-key' => sub {
+	my ($param) = @_;
+	die "no key given\n" if $param->{key};
+
+	my $content = do { local ($ARGV[0],  $/) = $param->{key};  <>};
+	my $fh = file_append('$HOME/.ssh/authorized_key');
+	$fh->write($content);
+	$fh->close;
+};
+
 1;    # Magic true value required at end of module
 
