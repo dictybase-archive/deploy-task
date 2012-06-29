@@ -25,7 +25,7 @@ Cmnd_Alias PROCESSES = /bin/nice, /bin/kill, /usr/bin/kill, /usr/bin/killall,  \
 Cmnd_Alias DRIVERS = /sbin/modprobe
 
 ## Editing config files
-Cmd_Alias EDITORS = /usr/bin/vim
+Cmnd_Alias EDITORS = /usr/bin/vim
 
 Cmnd_Alias SHUTDOWN = /usr/sbin/shutdown, /usr/sbin/halt
 
