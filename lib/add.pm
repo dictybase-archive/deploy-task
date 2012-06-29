@@ -70,6 +70,10 @@ task 'sudoers' => sub {
         my $text = do { local ( @ARGV, $/ ) = $param->{file}; <> };
         $fh->write($text);
         $fh->close;
+        chmod 0440,  "/etc/sudoers.d/$name";
+        warn "please add the line\n";
+        warn "#include /etc/sudoers.d/$name\n";
+        warn "in your /etc/sudoers file\n";
     }
     else {
         warn "/etc/sudoers.d do not exist\n";
