@@ -15,6 +15,7 @@ task 'daemontools', sub {
     #Generate startup file for upstart
     my $fh = file_write('/etc/init/svscan.conf');
     $fh->write("start on runlevel [12345]\nrespawn\n");
+    $fh->write("stop on shutdown\n");
     $fh->write("exec /command/svscanboot");
     $fh->close;
     run 'initctl reload-configuration &&  initctl start svscan';
