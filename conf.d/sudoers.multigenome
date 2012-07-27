@@ -8,24 +8,27 @@ Cmnd_Alias NETWORKING = /sbin/route, /sbin/ifconfig, /bin/ping, /sbin/dhclient, 
 Cmnd_Alias SOFTWARE = /bin/rpm, /usr/bin/up2date, /usr/bin/yum
 
 ## Services
-Cmnd_Alias SERVICES = /sbin/service, /sbin/chkconfig
+Cmnd_Alias SERVICES = /sbin/service, /sbin/chkconfig, /sbin/initctl
 
 ## Storage
 Cmnd_Alias STORAGE = /sbin/fdisk, /sbin/sfdisk, /sbin/parted, /sbin/partprobe, /bin/mount, /bin/umount
 
 ## Delegating permissions
-Cmnd_Alias DELEGATING = /usr/sbin/visudo, /bin/chown, /bin/chmod, /bin/chgrp,  \ 
-                       /usr/bin/setfacl, /usr/bin/getfacl,  /usr/bin/passwd 
+Cmnd_Alias DELEGATING = /usr/sbin/visudo, /bin/chown, /bin/chmod, /bin/chgrp,\ 
+                       /usr/bin/setfacl, /usr/bin/getfacl,  /usr/bin/passwd,\
+                       /usr/bin/gpasswd,/usr/sbin/usermod,/usr/sbin/addusr,\
+                       /usr/sbin/groupadd,/usr/sbin/useradd 
 
 ## Processes
-Cmnd_Alias PROCESSES = /bin/nice, /bin/kill, /usr/bin/kill, /usr/bin/killall,  \
-                       /usr/bin/svc
+Cmnd_Alias PROCESSES = /bin/nice, /bin/kill, /usr/bin/kill, /usr/bin/killall,\
+                       /usr/bin/svc,/usr/bin/svscan,/usr/bin/supervise,/usr/bin/svscanboot,\
+                       /usr/bin/stat,/usr/bin/htop
 
 ## Drivers
 Cmnd_Alias DRIVERS = /sbin/modprobe
 
 ## Editing config files
-Cmnd_Alias EDITORS = /usr/bin/vim
+Cmnd_Alias EDITORS = /usr/bin/vim,/usr/bin/less,/usr/bin/tail,/bin/ln,/bin/rm
 
 Cmnd_Alias SHUTDOWN = /usr/sbin/shutdown, /usr/sbin/halt
 
@@ -37,8 +40,10 @@ Cmnd_Alias SHELLS = /bin/sh, /bin/bash, /usr/bin/ksh, /usr/local/bin/zsh
 # By default run the given commands without any password
 
 # members of sys group gets the motherload of accesses
-%sys ALL = (root) NOPASSWD: NETWORKING, SOFTWARE,  SERVICES,  STORAGE, DELEGATING,  \
+%sys ALL = (root) NOPASSWD: NETWORKING, SOFTWARE,  SERVICES,  STORAGE, DELEGATING,\
                             PROCESSES,  DRIVERS,  EDITORS,  SHUTDOWN, SHELLS
 
 # members of developer group just enough
-%developer ALL = (root) NOPASSWD: EDITORS, SHELLS, SOFTWARE
+%developer ALL = (root) NOPASSWD: EDITORS, SHELLS, SOFTWARE,PROCESSES
+
+%wheel        ALL=(ALL)       NOPASSWD: ALL
