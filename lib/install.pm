@@ -24,5 +24,11 @@ task 'perl' => sub {
     }
 };
 
+desc 'install nodejs in RHEL/CentOS';
+task 'nodejs' => sub {
+   run 'yum -y --nogpgchek install http://nodejs.tchol.org/repocfg/el/nodejs-stable-release.noarch.rpm';	
+   run 'yum -y install nodejs-compat-symlinks npm';
+};
+
 1;    # Magic true value required at end of module
 
