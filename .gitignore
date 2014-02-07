@@ -4,3 +4,7 @@ secure.conf.d
 *.log
 *.swp
 *.lock
+local/
+.perl-version
+
+
